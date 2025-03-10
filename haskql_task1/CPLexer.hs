@@ -3,8 +3,8 @@
 {-# OPTIONS_GHC -fno-warn-unused-binds #-}
 {-# OPTIONS_GHC -fno-warn-unused-imports #-}
 {-# LANGUAGE CPP #-}
-{-# LINE 1 "haskql_task1/CPLexer.x" #-}
-module ToyLex where
+{-# LINE 1 "CPLexer.x" #-}
+module CPLexer where
 #include "ghcconfig.h"
 import qualified Data.Array
 #define ALEX_POSN 1
@@ -1849,7 +1849,7 @@ alexRightContext IBOX(sc) user__ _ _ input__ =
         -- match when checking the right context, just
         -- the first match will do.
 #endif
-{-# LINE 15 "haskql_task1/CPLexer.x" #-}
+{-# LINE 15 "CPLexer.x" #-}
 data PosnToken = PT AlexPosn Token 
   deriving (Eq, Show)
 

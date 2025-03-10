@@ -1,5 +1,5 @@
 {
-module ToyLex where
+module CPLexer where
 }
 
 %wrapper "posn"
@@ -10,7 +10,7 @@ tokens :-
     $white+                         ;
 
     "cp"                             {\p s -> PT p TokenCP }
-    [a-zA-Z0-9\_\-]+".csv"                          {\p s -> PT p (TokenCSV s) }
+    [a-zA-Z0-9\_\-]+".csv"           {\p s -> PT p (TokenCSV s) }
    
 {
 data PosnToken = PT AlexPosn Token 
