@@ -1,12 +1,6 @@
-import CPLexer (alexScanTokens)  
-import CPParser (parseCP)        
-import System.Environment (getArgs)  
-import System.IO (readFile, writeFile) 
-import Data.List (intercalate)  
+import System.Environment (getArgs)
 
 main :: IO ()
-main = do  
-    args <- getArgs  
-    print args
-        
-
+main = do
+  args <- getArgs
+  print args

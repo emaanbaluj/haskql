@@ -1,6 +1,7 @@
-module CartesianProduct where
+module CartesianProduct (processCP) where
 
 import Data.List (intercalate)
+import Util (splitOn)
 
 processCP :: FilePath -> FilePath -> IO ()
 processCP csv1 csv2 = do
@@ -16,9 +17,3 @@ processCP csv1 csv2 = do
 
   writeFile "output.csv" (unlines outputLines)
   putStrLn "Cartesian Product written to output.csv"
-
-splitOn :: Char -> String -> [String]
-splitOn delimitter input =
-  case break (== delimitter) input of
-    (x, _ : xs) -> x : splitOn delimitter xs
-    (x, _) -> [x]

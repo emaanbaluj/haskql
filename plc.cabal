@@ -27,6 +27,7 @@ library
       CartesianProduct
       CPLexer
       CPParser
+      Util
   other-modules:
       Paths_plc
   autogen-modules:
