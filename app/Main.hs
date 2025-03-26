@@ -1,6 +1,9 @@
+import CQLexer (alexScanTokens)
 import System.Environment (getArgs)
 
 main :: IO ()
 main = do
-  args <- getArgs
-  print args
+  [filename] <- getArgs
+  contents <- readFile filename
+  let tokens = alexScanTokens contents
+  print tokens

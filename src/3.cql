@@ -1,0 +1,8 @@
+SET x AS EXTRACT A.csv
+
+SET y AS (
+    GET x WHEN x.2 != NULL SORT ASC TRIM
+)
+
+PRINT y
+
