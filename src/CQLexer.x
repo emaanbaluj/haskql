@@ -55,6 +55,11 @@ tokens :-
     "{"                             {\p s -> PT p TokenLBRACE }
     "}"                             {\p s -> PT p TokenRBRACE }
     "COUNT"                         {\p s -> PT p TokenCOUNT }
+    "WRITE"                         {\p s -> PT p TokenWRITE } 
+    "TO"                            {\p s -> PT p TokenTO } 
+    "IMPORT"                        {\p s -> PT p TokenIMPORT }
+    "FROM"                          {\p s -> PT p TokenFROM }     
+         
     $alpha($alpha|$digit)*"."$digit+ { \p s -> 
         let (var, '.':num) = break (== '.') s
         in PT p (TokenColumn var num) 
@@ -113,6 +118,9 @@ data Token =
   | TokenLBRACE
   | TokenRBRACE
   | TokenCOUNT
+  | TokenWRITE
+  | TokenTO
+  | TokenFROM
   deriving (Eq, Show)
 
 tokenPosn :: PosnToken -> String
