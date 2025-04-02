@@ -1,8 +1,17 @@
 SET x AS EXTRACT A.csv
-
 SET y AS (
-    GET x WHEN x.2 != NULL SORT ASC TRIM
+    GET x.1 FILTER ROW(1) SORT ASC TRIM
 )
+
+1,2,3
+4,5,6
+7,8,9
+
+1
+4
+7
+
+1
 
 PRINT y
 

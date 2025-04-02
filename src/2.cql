@@ -1,4 +1,4 @@
-SET x AS EXTRACT A.csv
+IMPORT A.csv AS x;
 
 SET y AS (
     GET x.3, x.1 WHEN x.1 == x.2 SORT ASC TRIM
