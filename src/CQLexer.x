@@ -60,12 +60,12 @@ tokens :-
     "FROM"                          {\p s -> PT p TokenFROM }
     "ASC"                           {\p s -> PT p TokenASC }
     "DESC"                          {\p s -> PT p TokenDESC }
-    $alpha".csv"                    {\p s -> PT p (TokenCSV s) }
-    $alpha                          {\p s -> PT p (TokenVAR s) }
     "COL"                           {\p s -> PT p TokenCOL }
     "ROW"                           {\p s -> PT p TokenROW }
-    $digit+                         {\p s -> PT p (TokenNUM s) }
     "SORT"                          {\p s -> PT p TokenSORT }
+    $digit+                         {\p s -> PT p (TokenNUM s) }
+    $alpha".csv"                    {\p s -> PT p (TokenCSV s) }
+    $alpha                          {\p s -> PT p (TokenVAR s) }
 {
 data PosnToken = PT AlexPosn Token 
   deriving (Eq, Show)

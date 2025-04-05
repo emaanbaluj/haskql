@@ -1,4 +1,5 @@
 import CQLexer (alexScanTokens)
+import CQLParser (parseCql)
 import System.Environment (getArgs)
 
 main :: IO ()
@@ -6,4 +7,5 @@ main = do
   [filename] <- getArgs
   contents <- readFile filename
   let tokens = alexScanTokens contents
-  print tokens
+  let parsed = parseCql tokens
+  print parsed

@@ -8,10 +8,10 @@ import CQLexer
 %error { parseError }
 %token
     as { PT _ TokenAS }
+    import   { PT _ TokenIMPORT }
     extract { PT _ TokenEXTRACT }
     set { PT _ TokenSET }
     cross { PT _ TokenCROSS }
-    sort { PT _ TokenSORT }
     trim { PT _ TokenTRIM }
     "(" { PT _ TokenLPAREN }
     ")" { PT _ TokenRPAREN }
@@ -42,49 +42,33 @@ import CQLexer
     union { PT _ TokenUNION }
     intersect { PT _ TokenINTERSECT }
     subtract { PT _ TokenSUBTRACT }
-    replace { PT _ TokenREPLACE }
     when { PT _ TokenWHEN }
     "{" { PT _ TokenLBRACE }
     "}" { PT _ TokenRBRACE }
-    "CONCAT" { PT _ TokenCONCAT }
-    "COUNT" { PT _ TokenCOUNT }
-    "WRITE" { PT _ TokenWRITE }
-    "TO" { PT _ TokenTO }
-    "IMPORT" { PT _ TokenIMPORT }
-    "FROM" { PT _ TokenFROM }
-    filename { PT _ (TokenFILENAME $$) }
+    concat { PT _ TokenCONCAT }
+    count { PT _ TokenCOUNT }
+    write { PT _ TokenWRITE }
+    to   { PT _ TokenTO }
+    from     { PT _ TokenFROM }
+    sort     { PT _ TokenSORT }
+    col      { PT _ TokenCOL }
+    row      { PT _ TokenROW }
     var      { PT _ (TokenVAR $$) }
-    sort     { PT _ (TokenSORT $$) }
-    col
-
--- associativity rules
-%nonassoc 'N' 'B' true false nat var '(' ')'
-
-%right '.' '\\' '='
-%right in
-%left let
-
-%right if
-%right then  
-%right else
-%right '+'
-%right '<'
-%right ':'
-%right '->'
-%left APP
+    num      { PT _ (TokenNUM $$) }
+    file     { PT _ (TokenCSV $$) }
 
 %%
-ExpList : 'IMPORT' file 'FROM' filepath ';' ExpList { Import $2 $4 }
-        | 'PRINT' var ';' ExpList { Sequence (Print $2) $3 }
-        | 'WRITE' var 'TO' filepath ';' { Write $2 $4 }
-        | Exp { $1 }
-        | Exp ';' ExpList { Sequence $1 $3 }
+ExpList : import file as var ";" { Import $2 $4 }
+        -- | 'PRINT' var ';' ExpList { Sequence (Print $2) $3 }
+        -- | 'WRITE' var 'TO' filepath ';' { Write $2 $4 }
+        -- | Exp { $1 }
+        -- | Exp ';' ExpList { Sequence $1 $3 }
 
 
-Exp : 'SET' var  'AS' '(' Query ')' ';'   { SET $2 $5 }
-    | 
+-- Exp : 'SET' var  'AS' '(' Query ')' ';'   { SET $2 $5 }
+--     | 
 
-Query : ...
+-- Query : ...
 
 
 {
@@ -94,9 +78,9 @@ parseError (tok:_) = error $ "Parse error at " ++ tokenPosn tok
 
 
 data Exp = 
-    | Import String String
-    | Print String
-    | Write String String
-    | Set String Query
+     Import String String
+    -- | Print String
+    -- | Write String String
+    -- | Set String Query
     deriving (Show, Eq)
 }
