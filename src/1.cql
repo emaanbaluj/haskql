@@ -1,16 +1,9 @@
 
-IMPORT A.csv FROM "\User\user\haskql\csv";
-IMPORT B.csv FROM "\User\user\haskql\csv";
+IMPORT A.csv AS a;
+IMPORT B.csv AS b;
 
 SET z AS (
-    SELECT * FROM c;
+    CROSS(a.$1, b) SORT(ASC) TRIM
 );
-
-SET a AS (
-    ...
-);
-
-
-SELECT * FROM z;
 
 PRINT z;

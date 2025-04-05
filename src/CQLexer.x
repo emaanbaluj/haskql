@@ -9,7 +9,7 @@ $alpha = [a-zA-Z]
 tokens :-
     $white+                         ;
     $alpha($alpha|$digit)*".csv"    {\p s -> PT p (TokenCSV s) }
-    $alpha                          { \p s -> PT p (TokenVAR s) }
+    $alpha                          {\p s -> PT p (TokenVAR s) }
     "AS"                            {\p s -> PT p TokenAS }
     "EXTRACT"                       {\p s -> PT p TokenEXTRACT }
     "SET"                           {\p s -> PT p TokenSET }
@@ -25,6 +25,7 @@ tokens :-
     "=="                            {\p s -> PT p TokenEQ }
     "!="                            {\p s -> PT p TokenNEQ }
     "<="                            {\p s -> PT p TokenLE }
+    \"                              {\p s -> PT p TokenSPEECH }
     ">="                            {\p s -> PT p TokenGE }
     "<"                             {\p s -> PT p TokenLT }
     ">"                             {\p s -> PT p TokenGT }
@@ -54,15 +55,15 @@ tokens :-
     "WHEN"                          {\p s -> PT p TokenWHEN }
     "{"                             {\p s -> PT p TokenLBRACE }
     "}"                             {\p s -> PT p TokenRBRACE }
+    "CONCAT"                        {\p s -> PT p TokenCONCAT }
     "COUNT"                         {\p s -> PT p TokenCOUNT }
     "WRITE"                         {\p s -> PT p TokenWRITE } 
     "TO"                            {\p s -> PT p TokenTO } 
     "IMPORT"                        {\p s -> PT p TokenIMPORT }
     "FROM"                          {\p s -> PT p TokenFROM }     
-         
-    $alpha($alpha|$digit)*"."$digit+ { \p s -> 
-        let (var, '.':num) = break (== '.') s
-        in PT p (TokenColumn var num) 
+    $alpha".$"$digit+ { \p s -> 
+        let (var, '$':num) = break (== '$') s
+        in PT p (TokenVarColumn (init var) num) 
     }
 
 {
@@ -71,14 +72,16 @@ data PosnToken = PT AlexPosn Token
 
 data Token = 
   TokenCSV String 
-  | TokenColumn String String
+  | TokenVarColumn String String
   | TokenVAR String
   | TokenAS
   | TokenEXTRACT
   | TokenSET
   | TokenCROSS
   | TokenLPAREN
+  | TokenIMPORT
   | TokenRPAREN
+  | TokenSPEECH
   | TokenCOMMA
   | TokenSEMICOLON
   | TokenEQUAL
@@ -92,6 +95,7 @@ data Token =
   | TokenGT
   | TokenPLUS
   | TokenMINUS
+  | TokenCONCAT
   | TokenMULT
   | TokenDIV
   | TokenPRINT
