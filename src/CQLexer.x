@@ -8,8 +8,6 @@ $alpha = [a-zA-Z]
 
 tokens :-
     $white+                         ;
-    $alpha($alpha|$digit)*".csv"    {\p s -> PT p (TokenCSV s) }
-    $alpha                          {\p s -> PT p (TokenVAR s) }
     "AS"                            {\p s -> PT p TokenAS }
     "EXTRACT"                       {\p s -> PT p TokenEXTRACT }
     "SET"                           {\p s -> PT p TokenSET }
@@ -60,7 +58,9 @@ tokens :-
     "WRITE"                         {\p s -> PT p TokenWRITE } 
     "TO"                            {\p s -> PT p TokenTO } 
     "IMPORT"                        {\p s -> PT p TokenIMPORT }
-    "FROM"                          {\p s -> PT p TokenFROM }     
+    "FROM"                          {\p s -> PT p TokenFROM }
+    $alpha($alpha|$digit)*".csv"    {\p s -> PT p (TokenCSV s) }
+    $alpha                          {\p s -> PT p (TokenVAR s) }     
     $alpha".$"$digit+ { \p s -> 
         let (var, '$':num) = break (== '$') s
         in PT p (TokenVarColumn (init var) num) 
@@ -71,31 +71,27 @@ data PosnToken = PT AlexPosn Token
   deriving (Eq, Show)
 
 data Token = 
-  TokenCSV String 
-  | TokenVarColumn String String
-  | TokenVAR String
-  | TokenAS
+  TokenAS
   | TokenEXTRACT
   | TokenSET
   | TokenCROSS
   | TokenLPAREN
-  | TokenIMPORT
   | TokenRPAREN
-  | TokenSPEECH
   | TokenCOMMA
   | TokenSEMICOLON
   | TokenEQUAL
   | TokenOR
   | TokenAND
+  | TokenNULL
   | TokenEQ
   | TokenNEQ
   | TokenLE
+  | TokenSPEECH
   | TokenGE
   | TokenLT
   | TokenGT
   | TokenPLUS
   | TokenMINUS
-  | TokenCONCAT
   | TokenMULT
   | TokenDIV
   | TokenPRINT
@@ -118,13 +114,17 @@ data Token =
   | TokenREVERSE
   | TokenARITY
   | TokenWHEN
-  | TokenNULL
   | TokenLBRACE
   | TokenRBRACE
+  | TokenCONCAT
   | TokenCOUNT
   | TokenWRITE
   | TokenTO
+  | TokenIMPORT
   | TokenFROM
+  | TokenCSV String 
+  | TokenVAR String
+  | TokenVarColumn String String
   deriving (Eq, Show)
 
 tokenPosn :: PosnToken -> String
