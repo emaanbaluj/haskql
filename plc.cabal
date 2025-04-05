@@ -26,6 +26,7 @@ library
   exposed-modules:
       CartesianProduct
       CQLexer
+      CQLParser
       Util
   other-modules:
       Paths_plc
