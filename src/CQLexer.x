@@ -5,8 +5,6 @@ module CQLexer where
 %wrapper "posn"
 $digit = [0-9]
 $alpha = [a-zA-Z]
-$sortorder = [ASC|DESC]
-$colrow = [COL|ROW]
 
 tokens :-
     $white+                         ;
@@ -28,6 +26,7 @@ tokens :-
     \"                              {\p s -> PT p TokenSPEECH }
     ">="                            {\p s -> PT p TokenGE }
     "<"                             {\p s -> PT p TokenLT }
+    "."                             {\p s -> PT p TokenDOT }
     ">"                             {\p s -> PT p TokenGT }
     "+"                             {\p s -> PT p TokenPLUS }
     "-"                             {\p s -> PT p TokenMINUS }
@@ -59,16 +58,14 @@ tokens :-
     "TO"                            {\p s -> PT p TokenTO } 
     "IMPORT"                        {\p s -> PT p TokenIMPORT }
     "FROM"                          {\p s -> PT p TokenFROM }
+    "ASC"                           {\p s -> PT p TokenASC }
+    "DESC"                          {\p s -> PT p TokenDESC }
     $alpha".csv"                    {\p s -> PT p (TokenCSV s) }
-    $alpha                          {\p s -> PT p (TokenVAR s) }     
-    $alpha"."$colrow"("$digit+")" { \p s -> 
-        let (var, '$':num) = break (== '$') s
-        in PT p (TokenVarColumn (init var) num COLTYPE) 
-    }
-    "SORT("$sortorder")"                {\p s -> 
-      let (order:")") = break (== '(') s
-      in PT p (TokenSORT order)
-    }
+    $alpha                          {\p s -> PT p (TokenVAR s) }
+    "COL"                           {\p s -> PT p TokenCOL }
+    "ROW"                           {\p s -> PT p TokenROW }
+    $digit+                         {\p s -> PT p (TokenNUM s) }
+    "SORT"                          {\p s -> PT p TokenSORT }
 {
 data PosnToken = PT AlexPosn Token 
   deriving (Eq, Show)
@@ -82,6 +79,7 @@ data Token =
   | TokenRPAREN
   | TokenCOMMA
   | TokenSEMICOLON
+  | TokenDOT
   | TokenEQUAL
   | TokenOR
   | TokenAND
@@ -129,6 +127,9 @@ data Token =
   | TokenVAR String
   | TokenVarColumn String String
   | TokenCOMMENT
+  | TokenCOL
+  | TokenROW
+  | TokenNUM String
   deriving (Eq, Show)
 
 tokenPosn :: PosnToken -> String
