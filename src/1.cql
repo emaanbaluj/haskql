@@ -1,7 +1,8 @@
-IMPORT "path/to/A.csv" AS a;
+IMPORT "A.csv" AS a;
+IMPORT "B.csv" AS b;
 
-SET b AS (
-    GET a.COL(1), a.COL(10)
+SET c AS (
+    CROSS(a, b)
 );
 
-PRINT b;
+PRINT c;

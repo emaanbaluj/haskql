@@ -74,6 +74,7 @@ stmt :: { Stmt }
 
 query :: { Query }
     : "GET" colrows { Get $2 }
+    | "CROSS" "(" vars ")" { Cross $3 }
 
 sort :: { SortOrder }
     : "SORT" { ASC }
@@ -91,7 +92,7 @@ colrows :: { [ColRowData] }
 
 colrow :: { ColRowData }
     : var "." rowOrCol "(" num ")" { ColRowData $1 $3 (read $5) }
-    | var "." rowOrCol "(" "ALL" ")" { ColRowData $1 $2 0 }
+    | var "." rowOrCol "(" "ALL" ")" { ColRowData $1 $3 0 }
 
 rowOrCol :: { ColRow }
     : "COL" { COL }
@@ -116,6 +117,7 @@ data Stmt =
 
 data Query = 
     Get [ColRowData]
+    | Cross [VarName]
     deriving (Show, Eq)
 
 data Trim = TrimTrue | TrimFalse deriving (Show, Eq)
