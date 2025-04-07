@@ -8,7 +8,7 @@ import CQLexer
 %error { parseError }
 %token
     sort     { PT _ (TokenSORT $$) }
-    filepath     { PT _ (TokenCSV $$) }
+    csvfilepath     { PT _ (TokenCSV $$) }
     colrow   { PT _ (TokenColRow _ _ _) }
     num      { PT _ (TokenNUM $$) }
     var      { PT _ (TokenVAR $$) }
@@ -57,19 +57,19 @@ import CQLexer
     "FROM" { PT _ TokenFROM }
     "COL" { PT _ TokenCOL }
     "ROW" { PT _ TokenROW }
+    "PRINT" { PT _ TokenPRINT }
 
 %%
-ExpList : "IMPORT" filepath "AS" var ";" { Import $2 $4 }
-        -- | 'PRINT' var ';' ExpList { Sequence (Print $2) $3 }
-        -- | 'WRITE' var 'TO' filepath ';' { Write $2 $4 }
-        -- | Exp { $1 }
-        -- | Exp ';' ExpList { Sequence $1 $3 }
+stmts :: { [ Stmt ] }
+    : stmt stmts { $1 : $2 }
+    | stmt { [$1] }
 
-
--- Exp : 'SET' var  'AS' '(' Query ')' ';'   { SET $2 $5 }
---     | 
-
--- Query : ...
+stmt :: { Stmt }
+    : "IMPORT" csvfilepath "AS" var ";" { Import $2 $4 }
+    | "PRINT" var ";" { Print $2 }
+    | "WRITE" var "TO" csvfilepath ";" { Write $2 $4 }
+  
+    
 
 
 {
@@ -78,10 +78,12 @@ parseError [] = error "Parse error at end of file"
 parseError (tok:_) = error $ "Parse error at " ++ tokenPosn tok
 
 
-data Exp = 
-     Import String String
-    -- | Print String
-    -- | Write String String
-    -- | Set String Query
+data Stmt = 
+     Import FilePath VarName
+    | Print VarName
+    | Write VarName FilePath
     deriving (Show, Eq)
+
+type CSVFilePath = String
+type VarName = String
 }
