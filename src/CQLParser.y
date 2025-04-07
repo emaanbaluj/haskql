@@ -7,10 +7,10 @@ import CQLexer
 %tokentype { PosnToken }
 %error { parseError }
 %token
-    sort     { PT _ (TokenSORT $$) }
     csvfilepath     { PT _ (TokenCSV $$) }
     num      { PT _ (TokenNUM $$) }
     var      { PT _ (TokenVAR $$) }
+    "SORT"     { PT _ TokenSORT }
     "AS"     { PT _ TokenAS }
     "IMPORT" { PT _ TokenIMPORT }
     "EXTRACT" { PT _ TokenEXTRACT }
@@ -72,6 +72,8 @@ stmt :: { Stmt }
 
 query :: { Query }
     : "GET" colrows { Get $2 }
+
+
 
 colrows :: { [ColRowData] }
     : colrow "," colrows { $1 : $3 }

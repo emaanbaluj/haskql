@@ -1,6 +1,5 @@
 {
 module CQLexer where
-import Data.List (isInfixOf)
 }
 
 %wrapper "posn"
@@ -8,18 +7,10 @@ $digit = [0-9]
 @num = $digit+
 $alpha = [a-zA-Z]
 
-@sort = SORT\((ASC|DESC)\)
 @csvfilepath = \"([a-zA-Z0-9_\-\.\/\\]+)\.csv\"
 
 tokens :-
     $white+                         ;
-    @sort                           {\p s -> 
-      let order = case s of
-            "SORT(ASC)" -> ASC
-            "SORT(DESC)" -> DESC
-            _ -> error $ "Invalid sort order: " ++ s
-      in PT p (TokenSORT order)
-    }
     @csvfilepath                    {\p s -> 
       let filepath = init $ tail s
       in PT p (TokenCSV filepath)
@@ -76,6 +67,7 @@ tokens :-
     "TO"                            {\p s -> PT p TokenTO } 
     "IMPORT"                        {\p s -> PT p TokenIMPORT }
     "FROM"                          {\p s -> PT p TokenFROM }
+    "SORT"                          {\p s -> PT p TokenSORT }
     "ASC"                           {\p s -> PT p TokenASC }
     "DESC"                          {\p s -> PT p TokenDESC }
     "COL"                           {\p s -> PT p TokenCOL }
@@ -113,7 +105,7 @@ data Token =
   | TokenFILTER
   | TokenDISTINCT
   | TokenGET
-  | TokenSORT SortOrder
+  | TokenSORT
   | TokenASC
   | TokenDESC
   | TokenLIMIT
