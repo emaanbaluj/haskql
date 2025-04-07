@@ -36,27 +36,27 @@ import CQLexer
     "*" { PT _ TokenMULT }
     "/" { PT _ TokenDIV }
     "--" { PT _ TokenCOMMENT }
-    filter { PT _ TokenFILTER }
-    distinct { PT _ TokenDISTINCT }
-    get { PT _ TokenGET }
-    limit { PT _ TokenLIMIT }
-    replace { PT _ TokenREPLACE }
-    with { PT _ TokenWITH }
-    reverse { PT _ TokenREVERSE }
-    arity { PT _ TokenARITY }
-    union { PT _ TokenUNION }
-    intersect { PT _ TokenINTERSECT }
-    subtract { PT _ TokenSUBTRACT }
-    when { PT _ TokenWHEN }
+    "FILTER" { PT _ TokenFILTER }
+    "DISTINCT" { PT _ TokenDISTINCT }
+    "GET" { PT _ TokenGET }
+    "LIMIT" { PT _ TokenLIMIT }
+    "REPLACE" { PT _ TokenREPLACE }
+    "WITH" { PT _ TokenWITH }
+    "REVERSE" { PT _ TokenREVERSE }
+    "ARITY" { PT _ TokenARITY }
+    "UNION" { PT _ TokenUNION }
+    "INTERSECT" { PT _ TokenINTERSECT }
+    "SUBTRACT" { PT _ TokenSUBTRACT }
+    "WHEN" { PT _ TokenWHEN }
     "{" { PT _ TokenLBRACE }
     "}" { PT _ TokenRBRACE }
-    concat { PT _ TokenCONCAT }
-    count { PT _ TokenCOUNT }
-    write { PT _ TokenWRITE }
-    to   { PT _ TokenTO }
-    from     { PT _ TokenFROM }
-    col      { PT _ TokenCOL }
-    row      { PT _ TokenROW }
+    "CONCAT" { PT _ TokenCONCAT }
+    "COUNT" { PT _ TokenCOUNT }
+    "WRITE" { PT _ TokenWRITE }
+    "TO" { PT _ TokenTO }
+    "FROM" { PT _ TokenFROM }
+    "COL" { PT _ TokenCOL }
+    "ROW" { PT _ TokenROW }
 
 %%
 ExpList : "IMPORT" filepath "AS" var ";" { Import $2 $4 }
