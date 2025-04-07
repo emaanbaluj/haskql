@@ -7,6 +7,7 @@ $digit = [0-9]
 $alpha = [a-zA-Z]
 
 @sort = SORT\((ASC|DESC)\)
+@csvfilepath = \"([a-zA-Z0-9_\-\.\/\\]+)\.csv\"
 
 tokens :-
     $white+                         ;
@@ -17,8 +18,11 @@ tokens :-
             _ -> error $ "Invalid sort order: " ++ s
       in PT p (TokenSORT order)
     }
+    @csvfilepath                    {\p s -> 
+      let filepath = init $ tail s
+      in PT p (TokenCSV filepath)
+    }
     $digit+                         {\p s -> PT p (TokenNUM s) }
-    $alpha".csv"                    {\p s -> PT p (TokenCSV s) }
     $alpha                          {\p s -> PT p (TokenVAR s) }
     "AS"                            {\p s -> PT p TokenAS }
     "EXTRACT"                       {\p s -> PT p TokenEXTRACT }
