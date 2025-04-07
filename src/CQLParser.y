@@ -61,6 +61,9 @@ import CQLexer
     "ASC" { PT _ TokenASC }
     "DESC" { PT _ TokenDESC }
     "ALL" { PT _ TokenALL }
+    "LEFT_MERGE" { PT _ TokenLEFTMERGE }
+    "RIGHT_MERGE" { PT _ TokenRIGHTMERGE }
+    "ON" { PT _ TokenON }
 %%
 stmts :: { [ Stmt ] }
     : stmt stmts { $1 : $2 }
@@ -76,7 +79,11 @@ query :: { Query }
     : "GET" colrows { Get $2 }
     | "CROSS" "(" vars ")" { Cross $3 }
     | "FILTER" filterquery { Filter $2 }
+    | mergetype "(" var "," var ")" "ON" filterquery { Merge $1 $3 $5 $8 }
 
+mergetype :: { MergeType }
+    : "LEFT_MERGE" { LeftMerge }
+    | "RIGHT_MERGE" { RightMerge }
 
 filterquery :: { FilterQuery }
     : colrow operator colrow { FilterColRow $1 $2 $3 }
@@ -132,8 +139,10 @@ data Query =
     Get [ColRowData]
     | Cross [VarName]
     | Filter FilterQuery
+    | Merge MergeType VarName VarName FilterQuery
     deriving (Show, Eq)
 
+data MergeType = LeftMerge | RightMerge deriving (Show, Eq)
 data Trim = TrimTrue | TrimFalse deriving (Show, Eq)
 
 data ColRow = COL | ROW deriving (Eq, Show)
