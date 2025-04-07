@@ -60,7 +60,7 @@ import CQLexer
     "PRINT" { PT _ TokenPRINT }
     "ASC" { PT _ TokenASC }
     "DESC" { PT _ TokenDESC }
-
+    "ALL" { PT _ TokenALL }
 %%
 stmts :: { [ Stmt ] }
     : stmt stmts { $1 : $2 }
@@ -91,6 +91,7 @@ colrows :: { [ColRowData] }
 
 colrow :: { ColRowData }
     : var "." rowOrCol "(" num ")" { ColRowData $1 $3 (read $5) }
+    | var "." rowOrCol "(" "ALL" ")" { ColRowData $1 $2 0 }
 
 rowOrCol :: { ColRow }
     : "COL" { COL }
@@ -99,7 +100,6 @@ rowOrCol :: { ColRow }
 vars :: { [VarName] }
     : var "," vars { $1 : $3 }
     | var { [$1] }
-
 
 {
 parseError :: [PosnToken] -> a

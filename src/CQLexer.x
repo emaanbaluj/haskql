@@ -59,6 +59,7 @@ tokens :-
     "REVERSE"                       {\p s -> PT p TokenREVERSE }
     "ARITY"                         {\p s -> PT p TokenARITY }
     "WHEN"                          {\p s -> PT p TokenWHEN }
+    "ALL"                           {\p s -> PT p TokenALL }
     "{"                             {\p s -> PT p TokenLBRACE }
     "}"                             {\p s -> PT p TokenRBRACE }
     "CONCAT"                        {\p s -> PT p TokenCONCAT }
@@ -121,6 +122,7 @@ data Token =
   | TokenREVERSE
   | TokenARITY
   | TokenWHEN
+  | TokenALL
   | TokenLBRACE
   | TokenRBRACE
   | TokenCONCAT
