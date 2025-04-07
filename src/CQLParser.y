@@ -7,12 +7,17 @@ import CQLexer
 %tokentype { PosnToken }
 %error { parseError }
 %token
-    as { PT _ TokenAS }
-    import   { PT _ TokenIMPORT }
-    extract { PT _ TokenEXTRACT }
-    set { PT _ TokenSET }
-    cross { PT _ TokenCROSS }
-    trim { PT _ TokenTRIM }
+    sort     { PT _ (TokenSORT $$) }
+    filepath     { PT _ (TokenCSV $$) }
+    colrow   { PT _ (TokenColRow _ _ _) }
+    num      { PT _ (TokenNUM $$) }
+    var      { PT _ (TokenVAR $$) }
+    "AS"     { PT _ TokenAS }
+    "IMPORT" { PT _ TokenIMPORT }
+    "EXTRACT" { PT _ TokenEXTRACT }
+    "SET" { PT _ TokenSET }
+    "CROSS" { PT _ TokenCROSS }
+    "TRIM" { PT _ TokenTRIM }
     "(" { PT _ TokenLPAREN }
     ")" { PT _ TokenRPAREN }
     "," { PT _ TokenCOMMA }
@@ -50,15 +55,11 @@ import CQLexer
     write { PT _ TokenWRITE }
     to   { PT _ TokenTO }
     from     { PT _ TokenFROM }
-    sort     { PT _ (TokenSORT $$) }
     col      { PT _ TokenCOL }
     row      { PT _ TokenROW }
-    var      { PT _ (TokenVAR $$) }
-    num      { PT _ (TokenNUM $$) }
-    file     { PT _ (TokenCSV $$) }
 
 %%
-ExpList : import file as var ";" { Import $2 $4 }
+ExpList : "IMPORT" filepath "AS" var ";" { Import $2 $4 }
         -- | 'PRINT' var ';' ExpList { Sequence (Print $2) $3 }
         -- | 'WRITE' var 'TO' filepath ';' { Write $2 $4 }
         -- | Exp { $1 }

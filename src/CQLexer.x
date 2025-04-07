@@ -1,13 +1,16 @@
 {
 module CQLexer where
+import Data.List (isInfixOf)
 }
 
 %wrapper "posn"
 $digit = [0-9]
+@num = $digit+
 $alpha = [a-zA-Z]
 
 @sort = SORT\((ASC|DESC)\)
 @csvfilepath = \"([a-zA-Z0-9_\-\.\/\\]+)\.csv\"
+@colrow = $alpha\.(COL|ROW)\(@num\)
 
 tokens :-
     $white+                         ;
@@ -22,7 +25,16 @@ tokens :-
       let filepath = init $ tail s
       in PT p (TokenCSV filepath)
     }
-    $digit+                         {\p s -> PT p (TokenNUM s) }
+    @colrow                         {\p s -> 
+      let var = head s
+          colrow = case () of
+            _ | "COL" `isInfixOf` s -> COL
+              | "ROW" `isInfixOf` s -> ROW
+              | otherwise           -> error $ "Invalid colrow: " ++ s
+          num = s !! (length s - 2)
+      in PT p (TokenColRow var colrow num)
+    }
+    @num                            {\p s -> PT p (TokenNUM s) }
     $alpha                          {\p s -> PT p (TokenVAR s) }
     "AS"                            {\p s -> PT p TokenAS }
     "EXTRACT"                       {\p s -> PT p TokenEXTRACT }
@@ -143,9 +155,12 @@ data Token =
   | TokenCOL
   | TokenROW
   | TokenNUM String
+  | TokenColRow Char ColRow Char
   deriving (Eq, Show)
 
 data SortOrder = ASC | DESC deriving (Eq, Show)
+data ColRow = COL | ROW deriving (Eq, Show)
+
 tokenPosn :: PosnToken -> String
 tokenPosn (PT (AlexPn _ line col) _) = show line ++ ":" ++ show col
 }
