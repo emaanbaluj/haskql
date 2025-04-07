@@ -47,7 +47,7 @@ tokens :-
     "DISTINCT"                      {\p s -> PT p TokenDISTINCT }
     "GET"                           {\p s -> PT p TokenGET }
     "LIMIT"                         {\p s -> PT p TokenLIMIT }
-    "TRIM"                          {\p s -> PT p TokenTRIM }
+    "NOTRIM"                        {\p s -> PT p TokenNOTRIM }
     "LEFT_MERGE"                    {\p s -> PT p TokenLEFTMERGE }
     "RIGHT_MERGE"                   {\p s -> PT p TokenRIGHTMERGE }
     "ON"                            {\p s -> PT p TokenON }
@@ -109,7 +109,7 @@ data Token =
   | TokenASC
   | TokenDESC
   | TokenLIMIT
-  | TokenTRIM
+  | TokenNOTRIM
   | TokenLEFTMERGE
   | TokenRIGHTMERGE
   | TokenON
@@ -137,9 +137,6 @@ data Token =
   | TokenROW
   | TokenNUM String
   deriving (Eq, Show)
-
-data SortOrder = ASC | DESC deriving (Eq, Show)
-data ColRow = COL | ROW deriving (Eq, Show)
 
 tokenPosn :: PosnToken -> String
 tokenPosn (PT (AlexPn _ line col) _) = show line ++ ":" ++ show col

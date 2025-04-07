@@ -16,7 +16,7 @@ import CQLexer
     "EXTRACT" { PT _ TokenEXTRACT }
     "SET" { PT _ TokenSET }
     "CROSS" { PT _ TokenCROSS }
-    "TRIM" { PT _ TokenTRIM }
+    "NOTRIM" { PT _ TokenNOTRIM }
     "(" { PT _ TokenLPAREN }
     ")" { PT _ TokenRPAREN }
     "," { PT _ TokenCOMMA }
@@ -58,6 +58,8 @@ import CQLexer
     "COL" { PT _ TokenCOL }
     "ROW" { PT _ TokenROW }
     "PRINT" { PT _ TokenPRINT }
+    "ASC" { PT _ TokenASC }
+    "DESC" { PT _ TokenDESC }
 
 %%
 stmts :: { [ Stmt ] }
@@ -66,14 +68,22 @@ stmts :: { [ Stmt ] }
 
 stmt :: { Stmt }
     : "IMPORT" csvfilepath "AS" var ";" { Import $2 $4 }
-    | "SET" var "AS" "(" query ")" ";" { Set $2 $5 }
+    | "SET" var "AS" "(" query sort trim ")" ";" { Set $2 $5 $6 $7 }
     | "WRITE" var "TO" csvfilepath ";" { Write $2 $4 }
     | "PRINT" var ";" { Print $2 }
 
 query :: { Query }
     : "GET" colrows { Get $2 }
 
+sort :: { SortOrder }
+    : "SORT" { ASC }
+    | "SORT" "(" "ASC" ")" { ASC }
+    | "SORT" "(" "DESC" ")" { DESC }
+    | { ASC }
 
+trim :: { Trim }
+    : "NOTRIM" { TrimFalse }
+    | { TrimTrue }
 
 colrows :: { [ColRowData] }
     : colrow "," colrows { $1 : $3 }
@@ -101,12 +111,17 @@ data Stmt =
      Import FilePath VarName
     | Print VarName
     | Write VarName FilePath
-    | Set VarName Query
+    | Set VarName Query SortOrder Trim
     deriving (Show, Eq)
 
 data Query = 
     Get [ColRowData]
     deriving (Show, Eq)
+
+data Trim = TrimTrue | TrimFalse deriving (Show, Eq)
+
+data ColRow = COL | ROW deriving (Eq, Show)
+data SortOrder = ASC | DESC deriving (Eq, Show)
 
 data ColRowData = 
     ColRowData VarName ColRow Int
@@ -114,5 +129,4 @@ data ColRowData =
 
 type CSVFilePath = String
 type VarName = String
-
 }
