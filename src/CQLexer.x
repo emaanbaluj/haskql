@@ -6,8 +6,20 @@ module CQLexer where
 $digit = [0-9]
 $alpha = [a-zA-Z]
 
+@sort = SORT\((ASC|DESC)\)
+
 tokens :-
     $white+                         ;
+    @sort                           {\p s -> 
+      let order = case s of
+            "SORT(ASC)" -> ASC
+            "SORT(DESC)" -> DESC
+            _ -> error $ "Invalid sort order: " ++ s
+      in PT p (TokenSORT order)
+    }
+    $digit+                         {\p s -> PT p (TokenNUM s) }
+    $alpha".csv"                    {\p s -> PT p (TokenCSV s) }
+    $alpha                          {\p s -> PT p (TokenVAR s) }
     "AS"                            {\p s -> PT p TokenAS }
     "EXTRACT"                       {\p s -> PT p TokenEXTRACT }
     "SET"                           {\p s -> PT p TokenSET }
@@ -62,10 +74,7 @@ tokens :-
     "DESC"                          {\p s -> PT p TokenDESC }
     "COL"                           {\p s -> PT p TokenCOL }
     "ROW"                           {\p s -> PT p TokenROW }
-    "SORT"                          {\p s -> PT p TokenSORT }
-    $digit+                         {\p s -> PT p (TokenNUM s) }
-    $alpha".csv"                    {\p s -> PT p (TokenCSV s) }
-    $alpha                          {\p s -> PT p (TokenVAR s) }
+    
 {
 data PosnToken = PT AlexPosn Token 
   deriving (Eq, Show)
@@ -99,7 +108,7 @@ data Token =
   | TokenFILTER
   | TokenDISTINCT
   | TokenGET
-  | TokenSORT 
+  | TokenSORT SortOrder
   | TokenASC
   | TokenDESC
   | TokenLIMIT
@@ -132,6 +141,7 @@ data Token =
   | TokenNUM String
   deriving (Eq, Show)
 
+data SortOrder = ASC | DESC deriving (Eq, Show)
 tokenPosn :: PosnToken -> String
 tokenPosn (PT (AlexPn _ line col) _) = show line ++ ":" ++ show col
 }

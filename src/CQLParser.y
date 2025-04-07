@@ -50,7 +50,7 @@ import CQLexer
     write { PT _ TokenWRITE }
     to   { PT _ TokenTO }
     from     { PT _ TokenFROM }
-    sort     { PT _ TokenSORT }
+    sort     { PT _ (TokenSORT $$) }
     col      { PT _ TokenCOL }
     row      { PT _ TokenROW }
     var      { PT _ (TokenVAR $$) }
