@@ -75,6 +75,19 @@ stmt :: { Stmt }
 query :: { Query }
     : "GET" colrows { Get $2 }
     | "CROSS" "(" vars ")" { Cross $3 }
+    | "FILTER" filterquery { Filter $2 }
+
+
+filterquery :: { FilterQuery }
+    : colrow operator colrow { FilterColRow $1 $2 $3 }
+
+operator :: { Operator }
+    : "==" { Equal }
+    | "!=" { NotEqual }
+    | "<=" { LessThanOrEqual }
+    | ">=" { GreaterThanOrEqual }
+    | "<" { LessThan }
+    | ">" { GreaterThan }
 
 sort :: { SortOrder }
     : "SORT" { ASC }
@@ -118,12 +131,17 @@ data Stmt =
 data Query = 
     Get [ColRowData]
     | Cross [VarName]
+    | Filter FilterQuery
     deriving (Show, Eq)
 
 data Trim = TrimTrue | TrimFalse deriving (Show, Eq)
 
 data ColRow = COL | ROW deriving (Eq, Show)
 data SortOrder = ASC | DESC deriving (Eq, Show)
+
+data Operator = Equal | NotEqual | LessThan | GreaterThan | LessThanOrEqual | GreaterThanOrEqual deriving (Eq, Show)
+data FilterQuery = FilterColRow ColRowData Operator ColRowData deriving (Show, Eq)
+
 
 data ColRowData = 
     ColRowData VarName ColRow Int

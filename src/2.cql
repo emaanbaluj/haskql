@@ -1,8 +1,12 @@
-IMPORT "x/1/A.csv" AS x;
+IMPORT "A.csv" AS x;
 
 SET y AS (
-    GET x.COL(3), x.COL(1) WHEN x.1 == x.2
-)
+    FILTER x.COL(1) == x.COL(2)
+);
 
-PRINT y
+SET z AS (
+    GET y.COL(3), y.COL(1)
+);
+
+PRINT z;
 

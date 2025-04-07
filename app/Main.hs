@@ -1,5 +1,5 @@
-import CQLexer (alexScanTokens)
 import CQLParser (parseCql)
+import CQLexer (alexScanTokens)
 import System.Environment (getArgs)
 
 main :: IO ()
