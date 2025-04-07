@@ -9,7 +9,6 @@ import CQLexer
 %token
     sort     { PT _ (TokenSORT $$) }
     csvfilepath     { PT _ (TokenCSV $$) }
-    colrow   { PT _ (TokenColRow _ _ _) }
     num      { PT _ (TokenNUM $$) }
     var      { PT _ (TokenVAR $$) }
     "AS"     { PT _ TokenAS }
@@ -36,6 +35,7 @@ import CQLexer
     "*" { PT _ TokenMULT }
     "/" { PT _ TokenDIV }
     "--" { PT _ TokenCOMMENT }
+    "." { PT _ TokenDOT }
     "FILTER" { PT _ TokenFILTER }
     "DISTINCT" { PT _ TokenDISTINCT }
     "GET" { PT _ TokenGET }
@@ -66,10 +66,27 @@ stmts :: { [ Stmt ] }
 
 stmt :: { Stmt }
     : "IMPORT" csvfilepath "AS" var ";" { Import $2 $4 }
-    | "PRINT" var ";" { Print $2 }
+    | "SET" var "AS" "(" query ")" ";" { Set $2 $5 }
     | "WRITE" var "TO" csvfilepath ";" { Write $2 $4 }
-  
-    
+    | "PRINT" var ";" { Print $2 }
+
+query :: { Query }
+    : "GET" colrows { Get $2 }
+
+colrows :: { [ColRowData] }
+    : colrow "," colrows { $1 : $3 }
+    | colrow { [$1] }
+
+colrow :: { ColRowData }
+    : var "." rowOrCol "(" num ")" { ColRowData $1 $3 (read $5) }
+
+rowOrCol :: { ColRow }
+    : "COL" { COL }
+    | "ROW" { ROW }
+
+vars :: { [VarName] }
+    : var "," vars { $1 : $3 }
+    | var { [$1] }
 
 
 {
@@ -82,8 +99,18 @@ data Stmt =
      Import FilePath VarName
     | Print VarName
     | Write VarName FilePath
+    | Set VarName Query
+    deriving (Show, Eq)
+
+data Query = 
+    Get [ColRowData]
+    deriving (Show, Eq)
+
+data ColRowData = 
+    ColRowData VarName ColRow Int
     deriving (Show, Eq)
 
 type CSVFilePath = String
 type VarName = String
+
 }

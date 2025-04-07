@@ -1,5 +1,7 @@
 IMPORT "path/to/A.csv" AS a;
 
-WRITE a TO "path/to.csv";
+SET b AS (
+    GET a.COL(1), a.COL(10)
+);
 
-PRINT a;
+PRINT b;

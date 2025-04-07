@@ -10,7 +10,6 @@ $alpha = [a-zA-Z]
 
 @sort = SORT\((ASC|DESC)\)
 @csvfilepath = \"([a-zA-Z0-9_\-\.\/\\]+)\.csv\"
-@colrow = $alpha\.(COL|ROW)\(@num\)
 
 tokens :-
     $white+                         ;
@@ -24,15 +23,6 @@ tokens :-
     @csvfilepath                    {\p s -> 
       let filepath = init $ tail s
       in PT p (TokenCSV filepath)
-    }
-    @colrow                         {\p s -> 
-      let var = head s
-          colrow = case () of
-            _ | "COL" `isInfixOf` s -> COL
-              | "ROW" `isInfixOf` s -> ROW
-              | otherwise           -> error $ "Invalid colrow: " ++ s
-          num = s !! (length s - 2)
-      in PT p (TokenColRow var colrow num)
     }
     @num                            {\p s -> PT p (TokenNUM s) }
     $alpha                          {\p s -> PT p (TokenVAR s) }
@@ -90,7 +80,6 @@ tokens :-
     "DESC"                          {\p s -> PT p TokenDESC }
     "COL"                           {\p s -> PT p TokenCOL }
     "ROW"                           {\p s -> PT p TokenROW }
-    
 {
 data PosnToken = PT AlexPosn Token 
   deriving (Eq, Show)
@@ -155,7 +144,6 @@ data Token =
   | TokenCOL
   | TokenROW
   | TokenNUM String
-  | TokenColRow Char ColRow Char
   deriving (Eq, Show)
 
 data SortOrder = ASC | DESC deriving (Eq, Show)
