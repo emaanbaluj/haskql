@@ -7,6 +7,7 @@ module CQLexer where
 $alpha = [a-zA-Z]
 $digit = [0-9]
 
+@comment = \-\-[^\n]*
 @dollar = \$
 @num = $digit+
 @literal = \"[a-zA-Z0-9]+\"|@dollar
@@ -14,6 +15,7 @@ $digit = [0-9]
 
 tokens :-
     $white+                         ;
+    @comment                        ;
     @csvfilepath                    {\p s -> PT p (TokenCSV (init (tail s))) }
     @num                            {\p s -> PT p (TokenNUM s) }
     @literal                        {\p s -> 
