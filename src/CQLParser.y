@@ -38,8 +38,6 @@ import CQLexer
     "--" { PT _ TokenCOMMENT }
     "." { PT _ TokenDOT }
     "FILTER" { PT _ TokenFILTER }
-    "AT" { PT _ TokenAT }
-    "this" { PT _ TokenTHIS }
     "DISTINCT" { PT _ TokenDISTINCT }
     "GET" { PT _ TokenGET }
     "LIMIT" { PT _ TokenLIMIT }
@@ -86,6 +84,7 @@ query :: { Query }
     | "CROSS" "(" vars ")" { Cross $3 }
     | "FILTER" filterquery { Filter $2 }
     | mergetype "(" var "," var ")" "ON" filterquery { Merge $1 $3 $5 $8 }
+    | "CONCAT" colrow "WITH" "{" literals "}" { Concat $2 $5 }
 
 mergetype :: { MergeType }
     : "LEFT_MERGE" { LeftMerge }
@@ -95,7 +94,6 @@ filterquery :: { FilterQuery }
     : colrow operator colrow { FilterColRow $1 $2 $3 }
     | colrow "IS" "NULL" { FilterColRowIsNull $1 }
     | colrow "IS" "NOT" "NULL" { FilterColRowIsNotNull $1 }
-
 
 operator :: { Operator }
     : "==" { Equal }
@@ -131,6 +129,10 @@ vars :: { [VarName] }
     : var "," vars { $1 : $3 }
     | var { [$1] }
 
+literals :: { [Literal] }
+    : literal "," literals { $1 : $3 }
+    | literal { [$1] }
+
 {
 parseError :: [PosnToken] -> a
 parseError [] = error "Parse error at end of file"
@@ -149,6 +151,7 @@ data Query =
     | Cross [VarName]
     | Filter FilterQuery
     | Merge MergeType VarName VarName FilterQuery
+    | Concat ColRowData [Literal]
     deriving (Show, Eq)
 
 data MergeType = LeftMerge | RightMerge deriving (Show, Eq)
@@ -167,4 +170,6 @@ data ColRowData =
 
 type CSVFilePath = String
 type VarName = String
+type Literal = String
+
 }

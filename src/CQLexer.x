@@ -3,18 +3,24 @@ module CQLexer where
 }
 
 %wrapper "posn"
-$digit = [0-9]
-@num = $digit+
-$alpha = [a-zA-Z]
-@literal = \"[a-zA-Z0-9]+\"
 
+$alpha = [a-zA-Z]
+$digit = [0-9]
+
+@dollar = \$
+@num = $digit+
+@literal = \"[a-zA-Z0-9]+\"|@dollar
 @csvfilepath = \"([a-zA-Z0-9_\-\.\/\\]+)\.csv\"
 
 tokens :-
     $white+                         ;
     @csvfilepath                    {\p s -> PT p (TokenCSV (init (tail s))) }
     @num                            {\p s -> PT p (TokenNUM s) }
-    @literal                        {\p s -> PT p (TokenLITERAL (init (tail s))) }
+    @literal                        {\p s -> 
+      if s == "$" 
+        then PT p (TokenLITERAL s) 
+        else PT p (TokenLITERAL (init (tail s)))
+    }
     $alpha                          {\p s -> PT p (TokenVAR s) }
     "AS"                            {\p s -> PT p TokenAS }
     "EXTRACT"                       {\p s -> PT p TokenEXTRACT }
@@ -64,8 +70,6 @@ tokens :-
     "{"                             {\p s -> PT p TokenLBRACE }
     "}"                             {\p s -> PT p TokenRBRACE }
     "CONCAT"                        {\p s -> PT p TokenCONCAT }
-    "AT"                            {\p s -> PT p TokenAT }
-    "this"                          {\p s -> PT p TokenTHIS } 
     "COUNT"                         {\p s -> PT p TokenCOUNT }
     "WRITE"                         {\p s -> PT p TokenWRITE } 
     "TO"                            {\p s -> PT p TokenTO } 
@@ -124,8 +128,6 @@ data Token =
   | TokenSUBTRACT
   | TokenREPLACE
   | TokenWITH
-  | TokenAT
-  | TokenTHIS
   | TokenREVERSE
   | TokenLITERAL String
   | TokenARITY
