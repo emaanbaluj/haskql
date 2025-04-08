@@ -75,9 +75,9 @@ stmts :: { [ Stmt ] }
 
 stmt :: { Stmt }
     : "IMPORT" csvfilepath "AS" var ";" { Import $2 $4 }
-    | "SET" var "AS" "(" query sort trim ")" ";" { Set $2 $5 $6 $7 }
+    | "SET" var "AS" "(" query ")" ";" { Set $2 $5 }
     | "WRITE" var "TO" csvfilepath ";" { Write $2 $4 }
-    | "PRINT" var ";" { Print $2 }
+    | "PRINT" var sort trim ";" { Print $2 $3 $4 }
 
 query :: { Query }
     : "GET" colrows { Get $2 }
@@ -137,9 +137,9 @@ parseError (tok:_) = error $ "Parse error at " ++ tokenPosn tok
 
 data Stmt = 
      Import FilePath VarName
-    | Print VarName
+    | Print VarName SortOrder Trim
     | Write VarName FilePath
-    | Set VarName Query SortOrder Trim
+    | Set VarName Query
     deriving (Show, Eq)
 
 data Query = 
