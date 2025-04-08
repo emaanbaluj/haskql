@@ -64,6 +64,8 @@ tokens :-
     "{"                             {\p s -> PT p TokenLBRACE }
     "}"                             {\p s -> PT p TokenRBRACE }
     "CONCAT"                        {\p s -> PT p TokenCONCAT }
+    "AT"                            {\p s -> PT p TokenAT }
+    "this"                          {\p s -> PT p TokenTHIS } 
     "COUNT"                         {\p s -> PT p TokenCOUNT }
     "WRITE"                         {\p s -> PT p TokenWRITE } 
     "TO"                            {\p s -> PT p TokenTO } 
@@ -122,6 +124,8 @@ data Token =
   | TokenSUBTRACT
   | TokenREPLACE
   | TokenWITH
+  | TokenAT
+  | TokenTHIS
   | TokenREVERSE
   | TokenLITERAL String
   | TokenARITY

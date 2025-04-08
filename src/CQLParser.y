@@ -38,6 +38,8 @@ import CQLexer
     "--" { PT _ TokenCOMMENT }
     "." { PT _ TokenDOT }
     "FILTER" { PT _ TokenFILTER }
+    "AT" { PT _ TokenAT }
+    "this" { PT _ TokenTHIS }
     "DISTINCT" { PT _ TokenDISTINCT }
     "GET" { PT _ TokenGET }
     "LIMIT" { PT _ TokenLIMIT }
