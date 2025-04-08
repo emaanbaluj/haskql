@@ -76,6 +76,7 @@ stmts :: { [ Stmt ] }
 stmt :: { Stmt }
     : "IMPORT" csvfilepath "AS" var ";" { Import $2 $4 }
     | "SET" var "AS" "(" query ")" ";" { Set $2 $5 }
+    | "SET" var "AS" query ";" { Set $2 $4 }
     | "WRITE" var "TO" csvfilepath ";" { Write $2 $4 }
     | "PRINT" var sort trim ";" { Print $2 $3 $4 }
 
@@ -111,7 +112,9 @@ operator :: { Operator }
 sort :: { SortOrder }
     : "SORT" { ASC }
     | "SORT" "(" "ASC" ")" { ASC }
+    | "SORT" "ASC" { ASC }
     | "SORT" "(" "DESC" ")" { DESC }
+    | "SORT" "DESC" { DESC }
     | { ASC }
 
 trim :: { Trim }
