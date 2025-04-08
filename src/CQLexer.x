@@ -10,20 +10,13 @@ $digit = [0-9]
 @comment = \-\-[^\n]*
 @dollar = \$
 @num = $digit+
+@var = $alpha($alpha|$digit)*
 @literal = \"[a-zA-Z0-9]+\"|@dollar
 @csvfilepath = \"([a-zA-Z0-9_\-\.\/\\]+)\.csv\"
 
 tokens :-
     $white+                         ;
     @comment                        ;
-    @csvfilepath                    {\p s -> PT p (TokenCSV (init (tail s))) }
-    @num                            {\p s -> PT p (TokenNUM s) }
-    @literal                        {\p s -> 
-      if s == "$" 
-        then PT p (TokenLITERAL s) 
-        else PT p (TokenLITERAL (init (tail s)))
-    }
-    $alpha                          {\p s -> PT p (TokenVAR s) }
     "AS"                            {\p s -> PT p TokenAS }
     "EXTRACT"                       {\p s -> PT p TokenEXTRACT }
     "SET"                           {\p s -> PT p TokenSET }
@@ -82,6 +75,14 @@ tokens :-
     "DESC"                          {\p s -> PT p TokenDESC }
     "COL"                           {\p s -> PT p TokenCOL }
     "ROW"                           {\p s -> PT p TokenROW }
+    @csvfilepath                    {\p s -> PT p (TokenCSV (init (tail s))) }
+    @literal                        {\p s -> 
+      if s == "$" 
+        then PT p (TokenLITERAL s) 
+        else PT p (TokenLITERAL (init (tail s)))
+    }
+    @var                            {\p s -> PT p (TokenVAR s) }
+    @num                            {\p s -> PT p (TokenNUM s) }
 {
 data PosnToken = PT AlexPosn Token 
   deriving (Eq, Show)
@@ -131,7 +132,6 @@ data Token =
   | TokenREPLACE
   | TokenWITH
   | TokenREVERSE
-  | TokenLITERAL String
   | TokenARITY
   | TokenWHEN
   | TokenALL
@@ -143,12 +143,12 @@ data Token =
   | TokenTO
   | TokenIMPORT
   | TokenFROM
-  | TokenCSV String 
-  | TokenVAR String
-  | TokenVarColumn String String
   | TokenCOMMENT
   | TokenCOL
   | TokenROW
+  | TokenCSV String 
+  | TokenLITERAL String
+  | TokenVAR String
   | TokenNUM String
   deriving (Eq, Show)
 
