@@ -6,16 +6,15 @@ module CQLexer where
 $digit = [0-9]
 @num = $digit+
 $alpha = [a-zA-Z]
+@literal = \"[a-zA-Z0-9]+\"
 
 @csvfilepath = \"([a-zA-Z0-9_\-\.\/\\]+)\.csv\"
 
 tokens :-
     $white+                         ;
-    @csvfilepath                    {\p s -> 
-      let filepath = init $ tail s
-      in PT p (TokenCSV filepath)
-    }
+    @csvfilepath                    {\p s -> PT p (TokenCSV (init (tail s))) }
     @num                            {\p s -> PT p (TokenNUM s) }
+    @literal                        {\p s -> PT p (TokenLITERAL (init (tail s))) }
     $alpha                          {\p s -> PT p (TokenVAR s) }
     "AS"                            {\p s -> PT p TokenAS }
     "EXTRACT"                       {\p s -> PT p TokenEXTRACT }
@@ -124,6 +123,7 @@ data Token =
   | TokenREPLACE
   | TokenWITH
   | TokenREVERSE
+  | TokenLITERAL String
   | TokenARITY
   | TokenWHEN
   | TokenALL

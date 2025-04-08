@@ -9,6 +9,7 @@ import CQLexer
 %token
     csvfilepath     { PT _ (TokenCSV $$) }
     num      { PT _ (TokenNUM $$) }
+    literal      { PT _ (TokenLITERAL $$) }
     var      { PT _ (TokenVAR $$) }
     "SORT"     { PT _ TokenSORT }
     "AS"     { PT _ TokenAS }
