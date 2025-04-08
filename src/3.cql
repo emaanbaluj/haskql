@@ -1,17 +1,12 @@
-SET x AS EXTRACT A.csv
+IMPORT "A.csv" AS x;
+
 SET y AS (
-    GET x.1 FILTER ROW(1) SORT ASC TRIM
-)
+    FILTER x.COL(2) IS NOT NULL
+);
 
-1,2,3
-4,5,6
-7,8,9
+SET z AS (
+    GET x.COL(1), x.COL(2)
+);
 
-1
-4
-7
-
-1
-
-PRINT y
+PRINT z;
 

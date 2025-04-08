@@ -27,6 +27,8 @@ tokens :-
     ";"                             {\p s -> PT p TokenSEMICOLON }
     "="                             {\p s -> PT p TokenEQUAL }
     "||"                            {\p s -> PT p TokenOR }
+    "IS"                            {\p s -> PT p TokenIS }
+    "NOT"                           {\p s -> PT p TokenNOT }
     "&&"                            {\p s -> PT p TokenAND }
     "NULL"                          {\p s -> PT p TokenNULL }
     "=="                            {\p s -> PT p TokenEQ }
@@ -107,6 +109,8 @@ data Token =
   | TokenDISTINCT
   | TokenGET
   | TokenSORT
+  | TokenIS
+  | TokenNOT
   | TokenASC
   | TokenDESC
   | TokenLIMIT

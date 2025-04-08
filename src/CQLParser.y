@@ -64,6 +64,9 @@ import CQLexer
     "LEFT_MERGE" { PT _ TokenLEFTMERGE }
     "RIGHT_MERGE" { PT _ TokenRIGHTMERGE }
     "ON" { PT _ TokenON }
+    "IS" { PT _ TokenIS }
+    "NOT" { PT _ TokenNOT }
+    "NULL" { PT _ TokenNULL }
 %%
 stmts :: { [ Stmt ] }
     : stmt stmts { $1 : $2 }
@@ -87,6 +90,9 @@ mergetype :: { MergeType }
 
 filterquery :: { FilterQuery }
     : colrow operator colrow { FilterColRow $1 $2 $3 }
+    | colrow "IS" "NULL" { FilterColRowIsNull $1 }
+    | colrow "IS" "NOT" "NULL" { FilterColRowIsNotNull $1 }
+
 
 operator :: { Operator }
     : "==" { Equal }
@@ -149,7 +155,7 @@ data ColRow = COL | ROW deriving (Eq, Show)
 data SortOrder = ASC | DESC deriving (Eq, Show)
 
 data Operator = Equal | NotEqual | LessThan | GreaterThan | LessThanOrEqual | GreaterThanOrEqual deriving (Eq, Show)
-data FilterQuery = FilterColRow ColRowData Operator ColRowData deriving (Show, Eq)
+data FilterQuery = FilterColRow ColRowData Operator ColRowData | FilterColRowIsNull ColRowData | FilterColRowIsNotNull ColRowData deriving (Show, Eq) 
 
 
 data ColRowData = 
