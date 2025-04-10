@@ -11,7 +11,6 @@ eval :: Stmt -> CSVState ()
 eval (Import file var) = do
   result <- liftIO $ readCSV file
   addToContext var result
-  liftIO $ putStrLn $ "Imported " ++ file ++ " as " ++ var
 eval (Print var sort trim) = do
   ctx <- get
   let result = Map.lookup var ctx

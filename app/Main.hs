@@ -12,5 +12,4 @@ main = do
   let tokens = alexScanTokens contents
   let parsed = parseCql tokens
   (result, finalCtx) <- runStateT (mapM_ eval parsed) initialContext
-  print finalCtx
-  print result
+  return ()
