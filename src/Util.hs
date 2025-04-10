@@ -1,4 +1,4 @@
-module Util (splitOn, statementPrinter, readCSV, convertToCSV) where
+module Util (splitOn, statementPrinter, readCSV, convertToCSV, trimString) where
 
 import CQLParser (Stmt (..))
 import Data.List (intercalate)
@@ -30,3 +30,6 @@ readCSV filepath = do
 
 convertToCSV :: CSVData -> String
 convertToCSV rows = unlines $ map (intercalate ",") rows
+
+trimString :: String -> String
+trimString = foldr (\c acc -> if c == ' ' then acc else c : acc) ""

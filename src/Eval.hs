@@ -5,7 +5,7 @@ import Control.Monad.State
 import qualified Data.Map as Map
 import State (addToContext)
 import Types (CSVData, CSVState)
-import Util (convertToCSV, readCSV)
+import Util (convertToCSV, readCSV, trimString)
 
 eval :: Stmt -> CSVState ()
 eval (Import file var) = do
@@ -29,7 +29,6 @@ sortData :: CSVData -> SortOrder -> CSVData
 sortData result ASC = result
 sortData result DESC = result
 
--- TODO: Implement trimming
 trimData :: CSVData -> Trim -> CSVData
-trimData result TrimTrue = result
+trimData result TrimTrue = map (map trimString) result
 trimData result TrimFalse = result
