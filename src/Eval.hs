@@ -1,7 +1,8 @@
 module Eval (eval) where
 
-import CQLParser (Query (Cross), SortOrder (ASC, DESC), Stmt (..), Trim (TrimFalse, TrimTrue))
+import CQLParser (ColRowData (ColRowData), Query (Cross, Get), SortOrder (ASC, DESC), Stmt (..), Trim (TrimFalse, TrimTrue))
 import Control.Monad.State
+import Data.List (transpose)
 import qualified Data.Map as Map
 import Data.Maybe (fromJust)
 import State (addToContext)
@@ -23,6 +24,9 @@ eval (Set var query) = do
       let results = map (fromJust . (`Map.lookup` ctx)) vars
       let result = foldl (\acc row -> [row1 ++ row2 | row1 <- acc, row2 <- row]) [[]] results
       addToContext var result
+    Get colRows -> do
+      let columns = transpose $ map (\(ColRowData table _ colNum) -> let tableData = fromJust (Map.lookup table ctx) in map (!! (colNum - 1)) tableData) colRows
+      addToContext var columns
     _ -> return ()
 eval _ = return ()
 
