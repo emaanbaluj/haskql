@@ -1,6 +1,7 @@
 module Util (splitOn, statementPrinter, readCSV) where
 
 import CQLParser (Stmt (..))
+import Types (CSVData)
 
 splitOn :: Char -> String -> [String]
 splitOn delimiter input =
@@ -19,7 +20,7 @@ statementPrinter stmt = case stmt of
   Set var query -> do
     putStrLn $ "Set " ++ var ++ " as " ++ show query
 
-readCSV :: String -> IO [[String]]
+readCSV :: String -> IO CSVData
 readCSV filepath = do
   csvContent <- readFile filepath
   let rows = lines csvContent

@@ -1,18 +1,14 @@
-module State (addToContext, CSVData, CSVState, initialContext) where
+module State (addToContext, CSVState, initialContext) where
 
 import CQLParser (VarName)
 import Control.Monad.State
-import Data.Map (Map)
 import qualified Data.Map as Map
+import Types (CSVData, CSVMap, CSVState)
 
-type CSVData = Map VarName [[String]]
-
-type CSVState = StateT CSVData IO
-
-initialContext :: CSVData
+initialContext :: CSVMap
 initialContext = Map.empty
 
-addToContext :: VarName -> [[String]] -> CSVState ()
+addToContext :: VarName -> CSVData -> CSVState ()
 addToContext variable csvData = do
   ctx <- get
   put (Map.insert variable csvData ctx)

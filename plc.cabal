@@ -29,6 +29,7 @@ library
       CQLParser
       Eval
       State
+      Types
       Util
   other-modules:
       Paths_plc
