@@ -1,6 +1,7 @@
-module Util (splitOn, statementPrinter, readCSV) where
+module Util (splitOn, statementPrinter, readCSV, convertToCSV) where
 
 import CQLParser (Stmt (..))
+import Data.List (intercalate)
 import Types (CSVData)
 
 splitOn :: Char -> String -> [String]
@@ -26,3 +27,6 @@ readCSV filepath = do
   let rows = lines csvContent
   let csvDataList = map (splitOn ',') rows
   return csvDataList
+
+convertToCSV :: CSVData -> String
+convertToCSV rows = unlines $ map (intercalate ",") rows

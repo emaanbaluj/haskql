@@ -5,4 +5,4 @@ SET c AS (
     CROSS(a, b)
 );
 
-PRINT c;
+PRINT a;
