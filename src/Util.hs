@@ -1,4 +1,4 @@
-module Util (splitOn, statementPrinter, readCSV, convertToCSV, trimString) where
+module Util (splitOn, statementPrinter, readCSV, convertToCSV, trimString, modifyAt) where
 
 import CQLParser (Stmt (..))
 import Data.List (intercalate)
@@ -33,3 +33,6 @@ convertToCSV rows = unlines $ map (intercalate ",") rows
 
 trimString :: String -> String
 trimString = foldr (\c acc -> if c == ' ' then acc else c : acc) ""
+
+modifyAt :: Int -> (String -> String) -> [String] -> [String]
+modifyAt i f xs = [if idx == i then f x else x | (idx, x) <- zip [0 ..] xs]

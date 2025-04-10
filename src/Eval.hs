@@ -1,13 +1,13 @@
 module Eval (eval) where
 
-import CQLParser (ColRowData (ColRowData), Query (Cross, Get), SortOrder (ASC, DESC), Stmt (..), Trim (TrimFalse, TrimTrue))
+import CQLParser (ColRowData (..), Query (..), SortOrder (..), Stmt (..), Trim (..))
 import Control.Monad.State
-import Data.List (transpose)
+import Data.List (intercalate, transpose)
 import qualified Data.Map as Map
 import Data.Maybe (fromJust)
 import State (addToContext)
 import Types (CSVData, CSVState)
-import Util (convertToCSV, readCSV, trimString)
+import Util (convertToCSV, modifyAt, readCSV, splitOn, trimString)
 
 eval :: Stmt -> CSVState ()
 eval (Import file var) = do
@@ -27,6 +27,18 @@ eval (Set var query) = do
     Get colRows -> do
       let columns = transpose $ map (\(ColRowData table _ colNum) -> let tableData = fromJust (Map.lookup table ctx) in map (!! (colNum - 1)) tableData) colRows
       addToContext var columns
+    Concat (ColRowData table _ colNum) literals -> do
+      let tableData = fromJust (Map.lookup table ctx)
+      let updatedRows = concatMap (modifyAt (colNum - 1) (++ "," ++ intercalate "," literals)) tableData
+      let formattedRows = map (splitOn ',') updatedRows
+
+      let replacedRows = map replaceDollar formattedRows
+
+      addToContext var replacedRows
+      where
+        replaceDollar row =
+          let colValue = row !! (colNum - 1)
+           in foldr (\cell acc -> if cell == "$" then colValue : acc else cell : acc) [] row
     _ -> return ()
 eval _ = return ()
 
