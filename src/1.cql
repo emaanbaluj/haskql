@@ -1,8 +1,2 @@
-IMPORT "A.csv" AS a;
-IMPORT "B.csv" AS b;
-
-SET c AS (
-    CROSS(a, b)
-);
-
-PRINT c;
+IMPORT "src/A1.csv" AS a;
+IMPORT "src/B1.csv" AS b;

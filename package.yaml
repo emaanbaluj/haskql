@@ -19,7 +19,8 @@ description: Alex and Happy project.
 dependencies:
   - base >= 4.7 && < 5
   - array
-
+  - containers
+  - mtl
 ghc-options:
   - -Wall
   - -Wcompat

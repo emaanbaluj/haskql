@@ -1,4 +1,4 @@
-module Util (splitOn, statementPrinter) where
+module Util (splitOn, statementPrinter, readCSV) where
 
 import CQLParser (Stmt (..))
 
@@ -18,3 +18,10 @@ statementPrinter stmt = case stmt of
     putStrLn $ "Write " ++ var ++ " to " ++ file
   Set var query -> do
     putStrLn $ "Set " ++ var ++ " as " ++ show query
+
+readCSV :: String -> IO [[String]]
+readCSV filepath = do
+  csvContent <- readFile filepath
+  let rows = lines csvContent
+  let csvDataList = map (splitOn ',') rows
+  return csvDataList
