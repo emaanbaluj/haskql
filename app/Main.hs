@@ -1,8 +1,8 @@
 import CQLParser (parseCql)
 import CQLexer (alexScanTokens)
 import Control.Monad.State (runStateT)
+import qualified Data.Map as Map
 import Eval (eval)
-import State (initialContext)
 import System.Environment (getArgs)
 
 main :: IO ()
@@ -11,5 +11,5 @@ main = do
   contents <- readFile filename
   let tokens = alexScanTokens contents
   let parsed = parseCql tokens
-  (result, finalCtx) <- runStateT (mapM_ eval parsed) initialContext
+  (_, _) <- runStateT (mapM_ eval parsed) Map.empty
   return ()
