@@ -19,10 +19,9 @@ eval (Print var sort trim) = do
 eval (Set var query) = do
   ctx <- get
   case query of
-    Cross [var1, var2] -> do
-      let result1 = Map.lookup var1 ctx
-      let result2 = Map.lookup var2 ctx
-      let result = [row1 ++ row2 | row1 <- fromJust result1, row2 <- fromJust result2]
+    Cross vars -> do
+      let results = map (fromJust . (`Map.lookup` ctx)) vars
+      let result = foldl (\acc row -> [row1 ++ row2 | row1 <- acc, row2 <- row]) [[]] results
       addToContext var result
     _ -> return ()
 eval _ = return ()
