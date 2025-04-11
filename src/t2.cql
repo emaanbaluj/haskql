@@ -1,4 +1,4 @@
-IMPORT "A.csv" AS x;
+IMPORT "src/A1.csv" AS x;
 
 SET y AS (
     FILTER x.COL(1) == x.COL(2)

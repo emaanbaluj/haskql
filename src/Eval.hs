@@ -1,6 +1,6 @@
 module Eval (eval) where
 
-import CQLParser (ColRowData (..), FilterQuery (..), Query (..), SortOrder (..), Stmt (..), Trim (..))
+import CQLParser (ColRowData (..), FilterQuery (..), Operator (..), Query (..), SortOrder (..), Stmt (..), Trim (..))
 import Control.Monad.State
 import Data.List (transpose)
 import qualified Data.Map as Map
@@ -62,4 +62,23 @@ filterResult (FilterColRowIsNotNull (ColRowData table _ colNum)) = do
   let tableData = fromJust (Map.lookup table ctx)
   let filteredData = filter (\row -> row !! (colNum - 1) /= "") tableData
   return filteredData
+filterResult (FilterColRowIsNull (ColRowData table _ colNum)) = do
+  ctx <- get
+  let tableData = fromJust (Map.lookup table ctx)
+  let filteredData = filter (\row -> row !! (colNum - 1) == "") tableData
+  return filteredData
+filterResult (FilterColRow (ColRowData table _ colNum) operator (ColRowData _ _ colNum2)) = do
+  ctx <- get
+  let tableData = fromJust (Map.lookup table ctx)
+
+  let filteredData = filter (\row -> filterFunction operator (row !! (colNum - 1)) (row !! (colNum2 - 1))) tableData
+  return filteredData
+  where
+    filterFunction op operand1 operand2 = case op of
+      Equal -> operand1 == operand2
+      NotEqual -> operand1 /= operand2
+      LessThan -> operand1 < operand2
+      GreaterThan -> operand1 > operand2
+      LessThanOrEqual -> operand1 <= operand2
+      GreaterThanOrEqual -> operand1 >= operand2
 filterResult _ = undefined
