@@ -2,9 +2,10 @@ module Eval (eval) where
 
 import CQLParser (ColRowData (..), FilterQuery (..), Operator (..), Query (..), SortOrder (..), Stmt (..), Trim (..))
 import Control.Monad.State
-import Data.List (transpose)
+import Data.List (sort, sortBy, transpose)
 import qualified Data.Map as Map
 import Data.Maybe (fromJust)
+import Data.Ord (Down (Down), comparing)
 import State (addToContext)
 import Types (CSVData, CSVState)
 import Util (convertToCSV, insertAfter, readCSV, replaceWith, trimString)
@@ -13,10 +14,10 @@ eval :: Stmt -> CSVState ()
 eval (Import file var) = do
   result <- liftIO $ readCSV file
   addToContext var result
-eval (Print var sort trim) = do
+eval (Print var sortOrder trim) = do
   ctx <- get
   let result = Map.lookup var ctx
-  liftIO $ putStr $ formatResult result sort trim
+  liftIO $ putStr $ formatResult result sortOrder trim
 eval (Set var query) = do
   ctx <- get
   case query of
@@ -42,15 +43,14 @@ eval _ = return ()
 
 formatResult :: Maybe CSVData -> SortOrder -> Trim -> String
 formatResult Nothing _ _ = "Variable not found"
-formatResult (Just result) sort trim =
-  let sortedData = sortData result sort
+formatResult (Just result) sortOrder trim =
+  let sortedData = sortData result sortOrder
       trimmedData = trimData sortedData trim
    in convertToCSV trimmedData
 
--- TODO: Implement sorting
 sortData :: CSVData -> SortOrder -> CSVData
-sortData result ASC = result
-sortData result DESC = result
+sortData result ASC = sort result
+sortData result DESC = sortBy (comparing Down) result
 
 trimData :: CSVData -> Trim -> CSVData
 trimData result TrimTrue = map (map trimString) result
