@@ -5,10 +5,9 @@ import Control.Monad.State
 import Data.List (transpose)
 import qualified Data.Map as Map
 import Data.Maybe (fromJust)
-import Debug.Trace (traceM)
 import State (addToContext)
 import Types (CSVData, CSVState)
-import Util (convertToCSV, insertAfter, readCSV, trimString)
+import Util (convertToCSV, insertAfter, readCSV, replaceWith, trimString)
 
 eval :: Stmt -> CSVState ()
 eval (Import file var) = do
@@ -33,16 +32,11 @@ eval (Set var query) = do
       addToContext var columns
     Concat (ColRowData table _ colNum) literals -> do
       let tableData = fromJust (Map.lookup table ctx)
-      let updatedRows = map (\row -> insertAfter row colNum literals) tableData
-      traceM $ show updatedRows
 
-      let replacedRows = map replaceDollar updatedRows
+      let updatedData = map (\row -> insertAfter row colNum literals) tableData
+      let replacedData = map (\row -> let colValue = row !! (colNum - 1) in replaceWith "$" colValue row) updatedData
 
-      addToContext var replacedRows
-      where
-        replaceDollar row =
-          let colValue = row !! (colNum - 1)
-           in foldr (\cell acc -> if cell == "$" then colValue : acc else cell : acc) [] row
+      addToContext var replacedData
     _ -> return ()
 eval _ = return ()
 
