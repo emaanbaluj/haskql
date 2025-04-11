@@ -92,14 +92,14 @@ mergetype :: { MergeType }
     | "RIGHT_MERGE" { RightMerge }
 
 filterquery :: { FilterQuery }
-    : operand operator operand { FilterColRow $1 $2 $3 }
-    | operand "IS" "NULL" { FilterColRowIsNull $1 }
-    | operand "IS" "NOT" "NULL" { FilterColRowIsNotNull $1 }
+    : colrow operator colrow { FilterColRow $1 $2 $3 }
+    | colrow operator operand { FilterColRowOperand $1 $2 $3 }
+    | colrow "IS" "NULL" { FilterColRowIsNull $1 }
+    | colrow "IS" "NOT" "NULL" { FilterColRowIsNotNull $1 }
 
 operand :: { Operand }
     : num { OperandNum (read $1) }
     | literal { OperandLiteral $1 }
-    | colrow { OperandColRow $1 }
 
 operator :: { Operator }
     : "==" { Equal }
@@ -169,9 +169,9 @@ data ColRow = COL | ROW deriving (Eq, Show)
 data SortOrder = ASC | DESC deriving (Eq, Show)
 
 data Operator = Equal | NotEqual | LessThan | GreaterThan | LessThanOrEqual | GreaterThanOrEqual deriving (Eq, Show)
-data FilterQuery = FilterColRow Operand Operator Operand | FilterColRowIsNull Operand | FilterColRowIsNotNull Operand deriving (Show, Eq) 
+data FilterQuery = FilterColRow ColRowData Operator ColRowData | FilterColRowOperand ColRowData Operator Operand | FilterColRowIsNull ColRowData | FilterColRowIsNotNull ColRowData deriving (Show, Eq) 
 
-data Operand = OperandNum Int | OperandLiteral String | OperandColRow ColRowData deriving (Eq, Show)
+data Operand = OperandNum Int | OperandLiteral String deriving (Eq, Show)
 data ColRowData = 
     ColRowData VarName ColRow Int
     deriving (Show, Eq)

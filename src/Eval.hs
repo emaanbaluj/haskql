@@ -1,13 +1,14 @@
 module Eval (eval) where
 
-import CQLParser (ColRowData (..), FilterQuery (..), Operand (..), Query (..), SortOrder (..), Stmt (..), Trim (..))
+import CQLParser (ColRowData (..), FilterQuery (..), Query (..), SortOrder (..), Stmt (..), Trim (..))
 import Control.Monad.State
-import Data.List (intercalate, transpose)
+import Data.List (transpose)
 import qualified Data.Map as Map
 import Data.Maybe (fromJust)
+import Debug.Trace (traceM)
 import State (addToContext)
 import Types (CSVData, CSVState)
-import Util (convertToCSV, modifyAt, readCSV, splitOn, trimString)
+import Util (convertToCSV, insertAfter, readCSV, trimString)
 
 eval :: Stmt -> CSVState ()
 eval (Import file var) = do
@@ -32,10 +33,10 @@ eval (Set var query) = do
       addToContext var columns
     Concat (ColRowData table _ colNum) literals -> do
       let tableData = fromJust (Map.lookup table ctx)
-      let updatedRows = concatMap (modifyAt (colNum - 1) (++ "," ++ intercalate "," literals)) tableData
-      let formattedRows = map (splitOn ',') updatedRows
+      let updatedRows = map (\row -> insertAfter row colNum literals) tableData
+      traceM $ show updatedRows
 
-      let replacedRows = map replaceDollar formattedRows
+      let replacedRows = map replaceDollar updatedRows
 
       addToContext var replacedRows
       where
@@ -62,12 +63,9 @@ trimData result TrimTrue = map (map trimString) result
 trimData result TrimFalse = result
 
 filterResult :: FilterQuery -> CSVState CSVData
-filterResult (FilterColRowIsNotNull op) = case op of
-  OperandColRow (ColRowData table _ colNum) -> do
-    ctx <- get
-    let tableData = fromJust (Map.lookup table ctx)
-    let filteredData = filter (\row -> row !! (colNum - 1) /= "") tableData
-    return filteredData
-  OperandNum _ -> undefined
-  OperandLiteral _ -> undefined
+filterResult (FilterColRowIsNotNull (ColRowData table _ colNum)) = do
+  ctx <- get
+  let tableData = fromJust (Map.lookup table ctx)
+  let filteredData = filter (\row -> row !! (colNum - 1) /= "") tableData
+  return filteredData
 filterResult _ = undefined
