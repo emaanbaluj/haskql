@@ -1,6 +1,6 @@
 module Eval (eval) where
 
-import CQLParser (ColRowData (..), Query (..), SortOrder (..), Stmt (..), Trim (..))
+import CQLParser (ColRowData (..), FilterQuery (..), Operand (..), Query (..), SortOrder (..), Stmt (..), Trim (..))
 import Control.Monad.State
 import Data.List (intercalate, transpose)
 import qualified Data.Map as Map
@@ -20,6 +20,9 @@ eval (Print var sort trim) = do
 eval (Set var query) = do
   ctx <- get
   case query of
+    Filter filterQuery -> do
+      filteredResult <- filterResult filterQuery
+      addToContext var filteredResult
     Cross vars -> do
       let results = map (fromJust . (`Map.lookup` ctx)) vars
       let result = foldl (\acc row -> [row1 ++ row2 | row1 <- acc, row2 <- row]) [[]] results
@@ -57,3 +60,14 @@ sortData result DESC = result
 trimData :: CSVData -> Trim -> CSVData
 trimData result TrimTrue = map (map trimString) result
 trimData result TrimFalse = result
+
+filterResult :: FilterQuery -> CSVState CSVData
+filterResult (FilterColRowIsNotNull op) = case op of
+  OperandColRow (ColRowData table _ colNum) -> do
+    ctx <- get
+    let tableData = fromJust (Map.lookup table ctx)
+    let filteredData = filter (\row -> row !! (colNum - 1) /= "") tableData
+    return filteredData
+  OperandNum _ -> undefined
+  OperandLiteral _ -> undefined
+filterResult _ = undefined
