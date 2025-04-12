@@ -85,6 +85,7 @@ query :: { Query }
     : "GET" colrows { Get $2 }
     | "CROSS" "(" vars ")" { Cross $3 }
     | "FILTER" filterquery { Filter $2 }
+    | "DISTINCT" var { Distinct $2 }
     | mergetype "(" var "," var ")" "ON" "COL" num { Merge $1 $3 $5 (read $9) }
     | "UNION" "(" vars ")" { Union $3 }
     | "CONCAT" colrow "WITH" "{" literals "}" { Concat $2 $5 }
@@ -164,6 +165,7 @@ data Query =
     | Merge MergeType VarName VarName Int
     | Concat ColRowData [Literal]
     | Union [VarName]
+    | Distinct VarName
     deriving (Show, Eq)
 
 data MergeType = LeftMerge | RightMerge deriving (Show, Eq)

@@ -21,6 +21,10 @@ eval (Print var sortOrder trim) = do
 eval (Set var query) = do
   ctx <- get
   case query of
+    Distinct varName -> do
+      let table = fromJust (Map.lookup varName ctx)
+      let distinctData = nub table
+      addToContext var distinctData
     Union vars -> do
       let tables = map (fromJust . (`Map.lookup` ctx)) vars
       let unionedData = nub $ concat tables
