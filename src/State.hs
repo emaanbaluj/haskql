@@ -3,7 +3,7 @@ module State (addToContext, CSVState) where
 import CQLParser (VarName)
 import Control.Monad.State
 import qualified Data.Map as Map
-import Types (CSVData, CSVMap, CSVState)
+import Types (CSVData, CSVState)
 
 addToContext :: VarName -> CSVData -> CSVState ()
 addToContext variable csvData = do

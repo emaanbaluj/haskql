@@ -43,7 +43,6 @@ eval (Set var query) = do
       let replacedData = map (\row -> let colValue = row !! (colNum - 1) in replaceWith "$" colValue row) updatedData
 
       addToContext var replacedData
-    _ -> return ()
 eval _ = return ()
 
 formatResult :: Maybe CSVData -> SortOrder -> Trim -> String
