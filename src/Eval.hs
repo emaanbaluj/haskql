@@ -1,12 +1,11 @@
 module Eval (eval) where
 
-import CQLParser (ColRowData (..), FilterQuery (..), MergeType (LeftMerge, RightMerge), Operand (OperandLiteral, OperandNum), Operator (..), Query (..), SortOrder (..), Stmt (..), Trim (..))
+import CQLParser (ColRowData (..), FilterQuery (..), MergeType (..), Operand (..), Operator (..), Query (..), SortOrder (..), Stmt (..), Trim (..))
 import Control.Monad.State
 import Data.List (sort, sortBy, transpose)
 import qualified Data.Map as Map
 import Data.Maybe (fromJust)
 import Data.Ord (Down (Down), comparing)
-import Debug.Trace (trace)
 import State (addToContext)
 import Types (CSVData, CSVRow, CSVState)
 import Util (combineRows, convertToCSV, insertAfter, readCSV, replaceWith, trimString)
@@ -82,8 +81,11 @@ filterResult (FilterColRowOperand (ColRowData table _ colNum) operator operand) 
   ctx <- get
   let tableData = fromJust (Map.lookup table ctx)
   let operandValue = case operand of
+        -- TODO: Number is lexographically sorted at the moment (e.g. 2 > 10)
         OperandNum num -> show num
         OperandLiteral literal -> literal
+        -- TODO: Float is lexographically sorted at the moment (e.g. 2 > 10)
+        OperandFloat float -> show float
   let filteredData = filter (\row -> filterFunction operator (row !! (colNum - 1)) operandValue) tableData
   return filteredData
 

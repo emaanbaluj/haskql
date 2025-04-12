@@ -9,6 +9,7 @@ import CQLexer
 %token
     csvfilepath     { PT _ (TokenCSV $$) }
     num      { PT _ (TokenNUM $$) }
+    float      { PT _ (TokenFLOAT $$) }
     literal      { PT _ (TokenLITERAL $$) }
     var      { PT _ (TokenVAR $$) }
     "SORT"     { PT _ TokenSORT }
@@ -99,6 +100,7 @@ filterquery :: { FilterQuery }
 
 operand :: { Operand }
     : num { OperandNum (read $1) }
+    | float { OperandFloat (read $1) }
     | literal { OperandLiteral $1 }
 
 operator :: { Operator }
@@ -171,7 +173,7 @@ data SortOrder = ASC | DESC deriving (Eq, Show)
 data Operator = Equal | NotEqual | LessThan | GreaterThan | LessThanOrEqual | GreaterThanOrEqual deriving (Eq, Show)
 data FilterQuery = FilterColRow ColRowData Operator ColRowData | FilterColRowOperand ColRowData Operator Operand | FilterColRowIsNull ColRowData | FilterColRowIsNotNull ColRowData deriving (Show, Eq) 
 
-data Operand = OperandNum Int | OperandLiteral String deriving (Eq, Show)
+data Operand = OperandNum Int | OperandLiteral String | OperandFloat Float deriving (Eq, Show)
 data ColRowData = 
     ColRowData VarName ColRow Int
     deriving (Show, Eq)

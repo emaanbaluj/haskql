@@ -10,8 +10,9 @@ $digit = [0-9]
 @comment = \-\-[^\n]*
 @dollar = \$
 @num = $digit+
+@float = $digit+\.$digit+
 @var = $alpha($alpha|$digit)*
-@literal = \"[a-zA-Z0-9]+\"|@dollar
+@literal = \"[^\,\$]+\"|@dollar
 @csvfilepath = \"([a-zA-Z0-9_\-\.\/\\]+)\.csv\"
 
 tokens :-
@@ -83,6 +84,7 @@ tokens :-
     }
     @var                            {\p s -> PT p (TokenVAR s) }
     @num                            {\p s -> PT p (TokenNUM s) }
+    @float                          {\p s -> PT p (TokenFLOAT s) }
 {
 data PosnToken = PT AlexPosn Token 
   deriving (Eq, Show)
@@ -150,6 +152,7 @@ data Token =
   | TokenLITERAL String
   | TokenVAR String
   | TokenNUM String
+  | TokenFLOAT String
   deriving (Eq, Show)
 
 tokenPosn :: PosnToken -> String
