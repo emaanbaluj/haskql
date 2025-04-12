@@ -1,8 +1,8 @@
-module Util (splitOn, statementPrinter, readCSV, convertToCSV, trimString, modifyAt, insertAfter, replaceWith) where
+module Util (splitOn, statementPrinter, readCSV, convertToCSV, trimString, modifyAt, insertAfter, replaceWith, combineRows) where
 
 import CQLParser (Stmt (..))
 import Data.List (intercalate)
-import Types (CSVData)
+import Types (CSVData, CSVRow)
 
 splitOn :: Char -> String -> [String]
 splitOn delimiter input =
@@ -42,3 +42,6 @@ insertAfter row colNum literals = take colNum row ++ literals ++ drop colNum row
 
 replaceWith :: (Eq a) => a -> a -> [a] -> [a]
 replaceWith old new = map (\s -> if s == old then new else s)
+
+combineRows :: CSVData -> CSVData -> [(CSVRow, CSVRow)]
+combineRows table1 table2 = [(row1, row2) | row1 <- table1, row2 <- table2]
