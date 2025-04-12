@@ -1,11 +1,12 @@
 module Eval (eval) where
 
-import CQLParser (ColRowData (..), FilterQuery (..), MergeType (LeftMerge, RightMerge), Operator (..), Query (..), SortOrder (..), Stmt (..), Trim (..))
+import CQLParser (ColRowData (..), FilterQuery (..), MergeType (LeftMerge, RightMerge), Operand (OperandLiteral, OperandNum), Operator (..), Query (..), SortOrder (..), Stmt (..), Trim (..))
 import Control.Monad.State
 import Data.List (sort, sortBy, transpose)
 import qualified Data.Map as Map
 import Data.Maybe (fromJust)
 import Data.Ord (Down (Down), comparing)
+import Debug.Trace (trace)
 import State (addToContext)
 import Types (CSVData, CSVRow, CSVState)
 import Util (combineRows, convertToCSV, insertAfter, readCSV, replaceWith, trimString)
@@ -77,15 +78,14 @@ filterResult (FilterColRow (ColRowData table _ colNum) operator (ColRowData _ _ 
 
   let filteredData = filter (\row -> filterFunction operator (row !! (colNum - 1)) (row !! (colNum2 - 1))) tableData
   return filteredData
-  where
-    filterFunction op operand1 operand2 = case op of
-      Equal -> operand1 == operand2
-      NotEqual -> operand1 /= operand2
-      LessThan -> operand1 < operand2
-      GreaterThan -> operand1 > operand2
-      LessThanOrEqual -> operand1 <= operand2
-      GreaterThanOrEqual -> operand1 >= operand2
-filterResult _ = undefined
+filterResult (FilterColRowOperand (ColRowData table _ colNum) operator operand) = do
+  ctx <- get
+  let tableData = fromJust (Map.lookup table ctx)
+  let operandValue = case operand of
+        OperandNum num -> show num
+        OperandLiteral literal -> literal
+  let filteredData = filter (\row -> filterFunction operator (row !! (colNum - 1)) operandValue) tableData
+  return filteredData
 
 mergeTables :: MergeType -> CSVData -> CSVData -> Int -> CSVData
 mergeTables mergeType table1 table2 colNum =
@@ -97,3 +97,12 @@ mergeTables mergeType table1 table2 colNum =
 mergeRows :: MergeType -> [[(String, String)]] -> [CSVRow]
 mergeRows LeftMerge rowPairs = map (map (\(p, q) -> if null p then q else p)) rowPairs
 mergeRows RightMerge rowPairs = map (map (\(p, q) -> if null q then p else q)) rowPairs
+
+filterFunction :: (Ord a) => Operator -> a -> a -> Bool
+filterFunction op operand1 operand2 = case op of
+  Equal -> operand1 == operand2
+  NotEqual -> operand1 /= operand2
+  LessThan -> operand1 < operand2
+  GreaterThan -> operand1 > operand2
+  LessThanOrEqual -> operand1 <= operand2
+  GreaterThanOrEqual -> operand1 >= operand2
