@@ -2,7 +2,7 @@ module Eval (eval) where
 
 import CQLParser (ColRowData (..), FilterQuery (..), MergeType (..), Operand (..), Operator (..), Query (..), SortOrder (..), Stmt (..), Trim (..))
 import Control.Monad.State
-import Data.List (sort, sortBy, transpose)
+import Data.List (nub, sort, sortBy, transpose)
 import qualified Data.Map as Map
 import Data.Maybe (fromJust)
 import Data.Ord (Down (Down), comparing)
@@ -21,6 +21,10 @@ eval (Print var sortOrder trim) = do
 eval (Set var query) = do
   ctx <- get
   case query of
+    Union vars -> do
+      let tables = map (fromJust . (`Map.lookup` ctx)) vars
+      let unionedData = nub $ concat tables
+      addToContext var unionedData
     Merge mergeType var1 var2 colNum -> do
       let table1 = fromJust (Map.lookup var1 ctx)
       let table2 = fromJust (Map.lookup var2 ctx)

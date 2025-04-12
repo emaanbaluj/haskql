@@ -86,6 +86,7 @@ query :: { Query }
     | "CROSS" "(" vars ")" { Cross $3 }
     | "FILTER" filterquery { Filter $2 }
     | mergetype "(" var "," var ")" "ON" "COL" num { Merge $1 $3 $5 (read $9) }
+    | "UNION" "(" vars ")" { Union $3 }
     | "CONCAT" colrow "WITH" "{" literals "}" { Concat $2 $5 }
 
 mergetype :: { MergeType }
@@ -162,6 +163,7 @@ data Query =
     | Filter FilterQuery
     | Merge MergeType VarName VarName Int
     | Concat ColRowData [Literal]
+    | Union [VarName]
     deriving (Show, Eq)
 
 data MergeType = LeftMerge | RightMerge deriving (Show, Eq)
