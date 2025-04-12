@@ -37,8 +37,8 @@ trimString = foldr (\c acc -> if c == ' ' then acc else c : acc) ""
 modifyAt :: Int -> (String -> String) -> [String] -> [String]
 modifyAt i f xs = [if idx == i then f x else x | (idx, x) <- zip [0 ..] xs]
 
-insertAfter :: [String] -> Int -> [String] -> [String]
+insertAfter :: [a] -> Int -> [a] -> [a]
 insertAfter row colNum literals = take colNum row ++ literals ++ drop colNum row
 
-replaceWith :: String -> String -> [String] -> [String]
+replaceWith :: (Eq a) => a -> a -> [a] -> [a]
 replaceWith old new = map (\s -> if s == old then new else s)
