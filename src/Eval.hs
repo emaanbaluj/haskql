@@ -80,13 +80,10 @@ filterResult (FilterColRow (ColRowData table _ colNum) operator (ColRowData _ _ 
 filterResult (FilterColRowOperand (ColRowData table _ colNum) operator operand) = do
   ctx <- get
   let tableData = fromJust (Map.lookup table ctx)
-  let operandValue = case operand of
-        -- TODO: Number is lexographically sorted at the moment (e.g. 2 > 10)
-        OperandNum num -> show num
-        OperandLiteral literal -> literal
-        -- TODO: Float is lexographically sorted at the moment (e.g. 2 > 10)
-        OperandFloat float -> show float
-  let filteredData = filter (\row -> filterFunction operator (row !! (colNum - 1)) operandValue) tableData
+  let filteredData = case operand of
+        OperandLiteral literal -> filter (\row -> filterFunction operator (row !! (colNum - 1)) literal) tableData
+        OperandNum num -> filter (\row -> filterFunction operator (read (row !! (colNum - 1)) :: Double) (fromIntegral num)) tableData
+        OperandFloat float -> filter (\row -> filterFunction operator (read (row !! (colNum - 1)) :: Double) (fromRational (toRational float))) tableData
   return filteredData
 
 mergeTables :: MergeType -> CSVData -> CSVData -> Int -> CSVData
