@@ -1,8 +1,8 @@
-IMPORT "A.csv" AS a;
-IMPORT "B.csv" AS b;
+IMPORT "src/A1.csv" AS a;
+IMPORT "src/B1.csv" AS b;
 
-SET z AS (
-    LEFT_MERGE(x, y) ON COL 1
+SET c AS (
+    LEFT_MERGE(a, b) ON COL 1
 );
 
-PRINT y;
+PRINT c;

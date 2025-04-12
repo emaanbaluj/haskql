@@ -1,14 +1,14 @@
 module Eval (eval) where
 
-import CQLParser (ColRowData (..), FilterQuery (..), Operator (..), Query (..), SortOrder (..), Stmt (..), Trim (..))
+import CQLParser (ColRowData (..), FilterQuery (..), MergeType (LeftMerge, RightMerge), Operator (..), Query (..), SortOrder (..), Stmt (..), Trim (..))
 import Control.Monad.State
 import Data.List (sort, sortBy, transpose)
 import qualified Data.Map as Map
 import Data.Maybe (fromJust)
 import Data.Ord (Down (Down), comparing)
 import State (addToContext)
-import Types (CSVData, CSVState)
-import Util (convertToCSV, insertAfter, readCSV, replaceWith, trimString)
+import Types (CSVData, CSVRow, CSVState)
+import Util (combineRows, convertToCSV, insertAfter, readCSV, replaceWith, trimString)
 
 eval :: Stmt -> CSVState ()
 eval (Import file var) = do
@@ -21,6 +21,11 @@ eval (Print var sortOrder trim) = do
 eval (Set var query) = do
   ctx <- get
   case query of
+    Merge mergeType var1 var2 colNum -> do
+      let table1 = fromJust (Map.lookup var1 ctx)
+      let table2 = fromJust (Map.lookup var2 ctx)
+      let mergedData = mergeTables mergeType table1 table2 colNum
+      addToContext var mergedData
     Filter filterQuery -> do
       filteredResult <- filterResult filterQuery
       addToContext var filteredResult
@@ -82,3 +87,14 @@ filterResult (FilterColRow (ColRowData table _ colNum) operator (ColRowData _ _ 
       LessThanOrEqual -> operand1 <= operand2
       GreaterThanOrEqual -> operand1 >= operand2
 filterResult _ = undefined
+
+mergeTables :: MergeType -> CSVData -> CSVData -> Int -> CSVData
+mergeTables mergeType table1 table2 colNum =
+  let rowPairs = combineRows table1 table2
+      filteredRowPairs = filter (\(row1, row2) -> row1 !! (colNum - 1) == row2 !! (colNum - 1)) rowPairs
+      zippedRowPairs = map (uncurry zip) filteredRowPairs
+   in mergeRows mergeType zippedRowPairs
+
+mergeRows :: MergeType -> [[(String, String)]] -> [CSVRow]
+mergeRows LeftMerge rowPairs = map (map (\(p, q) -> if null p then q else p)) rowPairs
+mergeRows RightMerge rowPairs = map (map (\(p, q) -> if null q then p else q)) rowPairs
