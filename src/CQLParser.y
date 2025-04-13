@@ -60,7 +60,7 @@ import CQLexer
     "COL" { PT _ TokenCOL }
     "ROW" { PT _ TokenROW }
     "PRINT" { PT _ TokenPRINT }
-    "THEN" { PT _ TokenTHEN }
+    ">>=" { PT _ TokenBIND }
     "ASC" { PT _ TokenASC }
     "DESC" { PT _ TokenDESC }
     "ALL" { PT _ TokenALL }
@@ -83,7 +83,7 @@ stmt :: { Stmt }
     | "PRINT" var sort trim ";" { Print $2 $3 $4 }
 
 queries :: { [Query] }
-    : query "THEN" queries { $1 : $3 }
+    : query ">>=" queries { $1 : $3 }
     | query { [$1] }
 
 query :: { Query }

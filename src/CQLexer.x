@@ -60,7 +60,7 @@ tokens :-
     "REPLACE"                       {\p s -> PT p TokenREPLACE }
     "WITH"                          {\p s -> PT p TokenWITH }
     "REVERSE"                       {\p s -> PT p TokenREVERSE }
-    "THEN"                          {\p s -> PT p TokenTHEN }
+    ">>="                           {\p s -> PT p TokenBIND }
     "ARITY"                         {\p s -> PT p TokenARITY }
     "WHEN"                          {\p s -> PT p TokenWHEN }
     "ALL"                           {\p s -> PT p TokenALL }
@@ -141,7 +141,7 @@ data Token =
   | TokenLBRACE
   | TokenRBRACE
   | TokenCONCAT
-  | TokenTHEN
+  | TokenBIND
   | TokenCOUNT
   | TokenWRITE
   | TokenTO
