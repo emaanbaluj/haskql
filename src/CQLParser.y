@@ -83,8 +83,8 @@ stmt :: { Stmt }
     | "PRINT" var sort trim ";" { Print $2 $3 $4 }
 
 queries :: { [Query] }
-    : query ">>=" queries { $1 : $3 }
-    | query { [$1] }
+    : "(" query ")" ">>=" queries { $2 : $5 }
+    | "(" query ")" { [$2] }
 
 query :: { Query }
     : "GET" colrows { Get $2 }
