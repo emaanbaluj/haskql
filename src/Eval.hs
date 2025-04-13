@@ -87,6 +87,10 @@ queryHandler :: Query -> VarName -> CSVState ()
 queryHandler query var = do
   ctx <- get
   case query of
+    Limit limit -> do
+      let table = fromJust (Map.lookup var ctx)
+      let limitedData = take limit table
+      addToContext var limitedData
     Distinct varName -> do
       let table = fromJust (Map.lookup varName ctx)
       let distinctData = nub table

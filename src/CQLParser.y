@@ -93,6 +93,7 @@ query :: { Query }
     | "DISTINCT" var { Distinct $2 }
     | mergetype "(" var "," var ")" "ON" "COL" num { Merge $1 $3 $5 (read $9) }
     | "UNION" "(" vars ")" { Union $3 }
+    | "LIMIT" num { Limit (read $2) }
     | "CONCAT" colrow "WITH" "{" literals "}" { Concat $2 $5 }
 
 mergetype :: { MergeType }
@@ -171,6 +172,7 @@ data Query =
     | Concat ColRowData [Literal]
     | Union [VarName]
     | Distinct VarName
+    | Limit Int
     deriving (Show, Eq)
 
 data MergeType = LeftMerge | RightMerge deriving (Show, Eq)
