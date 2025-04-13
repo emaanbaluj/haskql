@@ -61,6 +61,7 @@ tokens :-
     "WITH"                          {\p s -> PT p TokenWITH }
     "REVERSE"                       {\p s -> PT p TokenREVERSE }
     ">>="                           {\p s -> PT p TokenBIND }
+    "THEN"                          {\p s -> PT p TokenTHEN }
     "ARITY"                         {\p s -> PT p TokenARITY }
     "WHEN"                          {\p s -> PT p TokenWHEN }
     "ALL"                           {\p s -> PT p TokenALL }
@@ -131,6 +132,7 @@ data Token =
   | TokenON
   | TokenUNION
   | TokenINTERSECT
+  | TokenTHEN
   | TokenSUBTRACT
   | TokenREPLACE
   | TokenWITH
