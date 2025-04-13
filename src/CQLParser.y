@@ -60,6 +60,7 @@ import CQLexer
     "COL" { PT _ TokenCOL }
     "ROW" { PT _ TokenROW }
     "PRINT" { PT _ TokenPRINT }
+    "THEN" { PT _ TokenTHEN }
     "ASC" { PT _ TokenASC }
     "DESC" { PT _ TokenDESC }
     "ALL" { PT _ TokenALL }
@@ -76,10 +77,14 @@ stmts :: { [ Stmt ] }
 
 stmt :: { Stmt }
     : "IMPORT" csvfilepath "AS" var ";" { Import $2 $4 }
-    | "SET" var "AS" "(" query ")" ";" { Set $2 $5 }
-    | "SET" var "AS" query ";" { Set $2 $4 }
+    | "SET" var "AS" "(" queries ")" ";" { Set $2 $5 }
+    | "SET" var "AS" queries ";" { Set $2 $4 }
     | "WRITE" var "TO" csvfilepath ";" { Write $2 $4 }
     | "PRINT" var sort trim ";" { Print $2 $3 $4 }
+
+queries :: { [Query] }
+    : query "THEN" queries { $1 : $3 }
+    | query { [$1] }
 
 query :: { Query }
     : "GET" colrows { Get $2 }
@@ -155,7 +160,7 @@ data Stmt =
      Import FilePath VarName
     | Print VarName SortOrder Trim
     | Write VarName FilePath
-    | Set VarName Query
+    | Set VarName [Query]
     deriving (Show, Eq)
 
 data Query = 

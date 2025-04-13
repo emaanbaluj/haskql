@@ -1,6 +1,6 @@
 module Eval (eval) where
 
-import CQLParser (ColRowData (..), FilterQuery (..), MergeType (..), Operand (..), Operator (..), Query (..), SortOrder (..), Stmt (..), Trim (..))
+import CQLParser (ColRowData (..), FilterQuery (..), MergeType (..), Operand (..), Operator (..), Query (..), SortOrder (..), Stmt (..), Trim (..), VarName)
 import Control.Monad.State
 import Data.List (nub, sort, sortBy, transpose)
 import qualified Data.Map as Map
@@ -18,39 +18,8 @@ eval (Print var sortOrder trim) = do
   ctx <- get
   let result = Map.lookup var ctx
   liftIO $ putStr $ formatResult result sortOrder trim
-eval (Set var query) = do
-  ctx <- get
-  case query of
-    Distinct varName -> do
-      let table = fromJust (Map.lookup varName ctx)
-      let distinctData = nub table
-      addToContext var distinctData
-    Union vars -> do
-      let tables = map (fromJust . (`Map.lookup` ctx)) vars
-      let unionedData = nub $ concat tables
-      addToContext var unionedData
-    Merge mergeType var1 var2 colNum -> do
-      let table1 = fromJust (Map.lookup var1 ctx)
-      let table2 = fromJust (Map.lookup var2 ctx)
-      let mergedData = mergeTables mergeType table1 table2 colNum
-      addToContext var mergedData
-    Filter filterQuery -> do
-      filteredResult <- filterResult filterQuery
-      addToContext var filteredResult
-    Cross vars -> do
-      let results = map (fromJust . (`Map.lookup` ctx)) vars
-      let result = foldl (\acc row -> [row1 ++ row2 | row1 <- acc, row2 <- row]) [[]] results
-      addToContext var result
-    Get colRows -> do
-      let columns = transpose $ map (\(ColRowData table _ colNum) -> let tableData = fromJust (Map.lookup table ctx) in map (!! (colNum - 1)) tableData) colRows
-      addToContext var columns
-    Concat (ColRowData table _ colNum) literals -> do
-      let tableData = fromJust (Map.lookup table ctx)
-
-      let updatedData = map (\row -> insertAfter row colNum literals) tableData
-      let replacedData = map (\row -> let colValue = row !! (colNum - 1) in replaceWith "$" colValue row) updatedData
-
-      addToContext var replacedData
+eval (Set var queries) = do
+  mapM_ (`queryHandler` var) queries
 eval _ = return ()
 
 formatResult :: Maybe CSVData -> SortOrder -> Trim -> String
@@ -113,3 +82,38 @@ filterFunction op operand1 operand2 = case op of
   GreaterThan -> operand1 > operand2
   LessThanOrEqual -> operand1 <= operand2
   GreaterThanOrEqual -> operand1 >= operand2
+
+queryHandler :: Query -> VarName -> CSVState ()
+queryHandler query var = do
+  ctx <- get
+  case query of
+    Distinct varName -> do
+      let table = fromJust (Map.lookup varName ctx)
+      let distinctData = nub table
+      addToContext var distinctData
+    Union vars -> do
+      let tables = map (fromJust . (`Map.lookup` ctx)) vars
+      let unionedData = nub $ concat tables
+      addToContext var unionedData
+    Merge mergeType var1 var2 colNum -> do
+      let table1 = fromJust (Map.lookup var1 ctx)
+      let table2 = fromJust (Map.lookup var2 ctx)
+      let mergedData = mergeTables mergeType table1 table2 colNum
+      addToContext var mergedData
+    Filter filterQuery -> do
+      filteredResult <- filterResult filterQuery
+      addToContext var filteredResult
+    Cross vars -> do
+      let results = map (fromJust . (`Map.lookup` ctx)) vars
+      let result = foldl (\acc row -> [row1 ++ row2 | row1 <- acc, row2 <- row]) [[]] results
+      addToContext var result
+    Get colRows -> do
+      let columns = transpose $ map (\(ColRowData table _ colNum) -> let tableData = fromJust (Map.lookup table ctx) in map (!! (colNum - 1)) tableData) colRows
+      addToContext var columns
+    Concat (ColRowData table _ colNum) literals -> do
+      let tableData = fromJust (Map.lookup table ctx)
+
+      let updatedData = map (\row -> insertAfter row colNum literals) tableData
+      let replacedData = map (\row -> let colValue = row !! (colNum - 1) in replaceWith "$" colValue row) updatedData
+
+      addToContext var replacedData
