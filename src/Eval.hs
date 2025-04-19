@@ -14,6 +14,12 @@ import Data.Char (toUpper, toLower)
 -- Main evaluation entry point
 eval :: Stmt -> CSVState ()
 
+eval (Transpose input output) = do
+  ctx <- get
+  case Map.lookup input ctx of
+    Nothing -> liftIO $ putStrLn ("<error> no such table: " ++ input)
+    Just table -> addToContext output (transpose table)
+
 -- MAP (expr) IN input AS output
 eval (Map expr input output) = do
   ctx <- get
@@ -94,6 +100,9 @@ queryHandler var query = do
       let table = fromJust (Map.lookup var ctx)
       let limitedData = take limit table
       addToContext var limitedData
+
+   
+   
 
     Distinct varName -> do
       let table = fromJust (Map.lookup varName ctx)

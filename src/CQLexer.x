@@ -83,6 +83,7 @@ tokens :-
     "UPPER"                         {\p s -> PT p TokenUPPER }
     "LOWER"                         {\p s -> PT p TokenLOWER }
     "IN"                            {\p s -> PT p TokenIN }
+    "TRANSPOSE"                     {\p s -> PT p TokenTRANSPOSE}
     @csvfilepath                    {\p s -> PT p (TokenCSV (init (tail s))) }
     @literal                        {\p s -> 
       if s == "$" 
@@ -162,6 +163,7 @@ data Token =
   | TokenUPPER
   | TokenLOWER
   | TokenIN
+  | TokenTRANSPOSE
   | TokenCSV String 
   | TokenLITERAL String
   | TokenVAR String

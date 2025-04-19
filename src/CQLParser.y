@@ -75,6 +75,7 @@ import CQLexer
     "UPPER" { PT _ TokenUPPER }
     "LOWER" { PT _ TokenLOWER }
     "IN"    { PT _ TokenIN }
+    "TRANSPOSE" { PT _ TokenTRANSPOSE }
    
 
 %%
@@ -89,6 +90,8 @@ stmt :: { Stmt }
     | "WRITE" var "TO" csvfilepath ";" { Write $2 $4 }
     | "PRINT" var sort trim ";" { Print $2 $3 $4 }
     | "MAP" "(" expr ")" "IN" var "AS" var ";" { Map $3 $6 $8 }
+    | "TRANSPOSE" var "AS" var ";" { Transpose $2 $4 }
+    
 
 queries :: { [Query] }
     : "(" query ")" "THEN" queries { $2 : $5 }
@@ -104,6 +107,7 @@ query :: { Query }
     | "UNION" "(" vars ")" { Union $3 }
     | "LIMIT" num { Limit (read $2) }
     | "CONCAT" colrow "WITH" "{" literals "}" { Concat $2 $5 }
+    
 
 mergetype :: { MergeType }
     : "LEFT_MERGE" { LeftMerge }
@@ -184,6 +188,7 @@ data Stmt =
      Import FilePath VarName
     | Print VarName SortOrder Trim
     | Write VarName FilePath
+    | Transpose VarName VarName
     | Set VarName [Query]
     | Map Expr VarName VarName
     deriving (Show, Eq)
