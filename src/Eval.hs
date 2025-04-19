@@ -1,14 +1,16 @@
 module Eval (eval) where
 
-import CQLParser (ColRowData(..), FilterQuery(..), MergeType(..), Operand(..), Operator(..), Query(..), SortOrder(..), Stmt(..), Trim(..), VarName)
+import CQLParser (ColRowData(..), ColRow(..), FilterQuery(..), MergeType(..), Operand(..), Operator(..), Query(..), SortOrder(..), Stmt(..), Trim(..), VarName)
 import Control.Monad.State
+import Control.Monad (when)
 import Data.List (nub, sort, sortBy, transpose)
 import qualified Data.Map as Map
 import Data.Maybe (fromJust)
 import Data.Ord (Down (Down), comparing)
 import State (addToContext)
 import Types (CSVData, CSVRow, CSVState)
-import Util (combineRows, convertToCSV, insertAfter, readCSV, replaceWith, trimString, writeToCSV)
+import Util (combineRows, convertToCSV, insertAfter, readCSV, replaceWith, trimString, writeToCSV, getColFromTable, getRowFromTable, setColInTable, setRowInTable)
+
 
 eval :: Stmt -> CSVState ()
 -- 2) WRITE var TO filepath
@@ -125,3 +127,36 @@ queryHandler var query = do
       let replacedData = map (\row -> let colValue = row !! (colNum - 1) in replaceWith "$" colValue row) updatedData
 
       addToContext var replacedData
+    Replace target source -> do
+      let targetTable = case target of (ColRowData table _ _) -> table
+      let sourceTable = case source of (ColRowData table _ _) -> table
+      
+      targetData <- case Map.lookup targetTable ctx of
+        Just data' -> return data'
+        Nothing -> liftIO (putStrLn $ "Error: Table " ++ targetTable ++ " not found") >> return []
+      
+      sourceData <- case Map.lookup sourceTable ctx of
+        Just data' -> return data'
+        Nothing -> liftIO (putStrLn $ "Error: Table " ++ sourceTable ++ " not found") >> return []
+      
+      when (not (null targetData) && not (null sourceData)) $ do
+        let (targetType, targetNum) = case target of (ColRowData _ t n) -> (t, n)
+        let (sourceType, sourceNum) = case source of (ColRowData _ t n) -> (t, n)
+
+        let dataToCopy = case sourceType of
+              COL -> getColFromTable sourceData sourceNum
+              ROW -> getRowFromTable sourceData sourceNum
+        
+        let updatedData = case targetType of
+              COL -> 
+                if sourceType == ROW 
+                then setColInTable targetData targetNum dataToCopy
+                else setColInTable targetData targetNum dataToCopy
+              ROW -> 
+                if sourceType == COL 
+                then setRowInTable targetData targetNum dataToCopy
+                else setRowInTable targetData targetNum dataToCopy
+        
+        addToContext targetTable updatedData
+        when (targetTable /= var) $ addToContext var updatedData
+      

@@ -8,7 +8,11 @@ module Util (
   insertAfter,
   replaceWith,
   combineRows,
-  writeToCSV   
+  writeToCSV,
+  getColFromTable,
+  getRowFromTable,
+  setColInTable,
+  setRowInTable   
 ) where
 
 import CQLParser (Stmt (..))
@@ -60,3 +64,17 @@ replaceWith old new = map (\s -> if s == old then new else s)
 
 combineRows :: CSVData -> CSVData -> [(CSVRow, CSVRow)]
 combineRows table1 table2 = [(row1, row2) | row1 <- table1, row2 <- table2]
+
+getColFromTable :: CSVData -> Int -> [String]
+getColFromTable table colNum = map (!! (colNum - 1)) table
+
+getRowFromTable :: CSVData -> Int -> CSVRow
+getRowFromTable table rowNum = table !! (rowNum - 1)
+
+setColInTable :: CSVData -> Int -> [String] -> CSVData
+setColInTable table colNum newCol = 
+    zipWith (\row val -> take (colNum - 1) row ++ [val] ++ drop colNum row) table newCol
+
+setRowInTable :: CSVData -> Int -> CSVRow -> CSVData
+setRowInTable table rowNum newRow = 
+    take (rowNum - 1) table ++ [newRow] ++ drop rowNum table

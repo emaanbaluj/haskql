@@ -1,8 +1,8 @@
 IMPORT "src/A1.csv" AS a;
-IMPORT "src/B1.csv" AS b;
+PRINT a;
 
-SET c AS (
-    CROSS(a, b)
+SET result AS (
+    REPLACE a.COL(2) WITH a.COL(1)
 );
 
-WRITE c TO "src/output.csv";
+PRINT result;

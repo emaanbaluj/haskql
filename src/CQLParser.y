@@ -97,6 +97,8 @@ query :: { Query }
     | "UNION" "(" vars ")" { Union $3 }
     | "LIMIT" num { Limit (read $2) }
     | "CONCAT" colrow "WITH" "{" literals "}" { Concat $2 $5 }
+    | "REPLACE" colrow "WITH" colrow { Replace $2 $4 }
+   
 
 mergetype :: { MergeType }
     : "LEFT_MERGE" { LeftMerge }
@@ -175,6 +177,7 @@ data Query =
     | Union [VarName]
     | Distinct VarName
     | Limit Int
+    | Replace ColRowData ColRowData
     deriving (Show, Eq)
 
 data MergeType = LeftMerge | RightMerge deriving (Show, Eq)
