@@ -1,6 +1,6 @@
 module Eval (eval) where
 
-import CQLParser (ColRowData (..), FilterQuery (..), MergeType (..), Operand (..), Operator (..), Query (..), SortOrder (..), Stmt (..), Trim (..), VarName)
+import CQLParser (ColRowData(..), FilterQuery(..), MergeType(..), Operand(..), Operator(..), Query(..), SortOrder(..), Stmt(..), Trim(..), VarName)
 import Control.Monad.State
 import Data.List (nub, sort, sortBy, transpose)
 import qualified Data.Map as Map
@@ -8,9 +8,18 @@ import Data.Maybe (fromJust)
 import Data.Ord (Down (Down), comparing)
 import State (addToContext)
 import Types (CSVData, CSVRow, CSVState)
-import Util (combineRows, convertToCSV, insertAfter, readCSV, replaceWith, trimString)
+import Util (combineRows, convertToCSV, insertAfter, readCSV, replaceWith, trimString, writeToCSV)
 
 eval :: Stmt -> CSVState ()
+-- 2) WRITE var TO filepath
+eval (Write var filePath ) = do
+  ctx <- get
+  case Map.lookup var ctx of
+    Nothing -> 
+      liftIO $ putStrLn ("<error> no such variable: " ++ var)
+    Just table -> 
+      liftIO $ writeToCSV table filePath
+
 eval (Import file var) = do
   result <- liftIO $ readCSV file
   addToContext var result
@@ -25,6 +34,7 @@ eval (Print var sortOrder trim) = do
       let sortedData = sortData result sortOrder
           trimmedData = trimData sortedData trim
        in convertToCSV trimmedData
+
 
     sortData :: CSVData -> SortOrder -> CSVData
     sortData result ASC = sort result

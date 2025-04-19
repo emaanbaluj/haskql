@@ -1,8 +1,20 @@
-module Util (splitOn, statementPrinter, readCSV, convertToCSV, trimString, modifyAt, insertAfter, replaceWith, combineRows) where
+module Util (
+  splitOn,
+  statementPrinter,
+  readCSV,
+  convertToCSV,
+  trimString,
+  modifyAt,
+  insertAfter,
+  replaceWith,
+  combineRows,
+  writeToCSV   
+) where
 
 import CQLParser (Stmt (..))
 import Data.List (intercalate)
 import Types (CSVData, CSVRow)
+
 
 splitOn :: Char -> String -> [String]
 splitOn delimiter input =
@@ -30,6 +42,9 @@ readCSV filepath = do
 
 convertToCSV :: CSVData -> String
 convertToCSV rows = unlines $ map (intercalate ",") rows
+
+writeToCSV :: CSVData -> FilePath -> IO ()
+writeToCSV csv filepath = writeFile filepath (convertToCSV csv)
 
 trimString :: String -> String
 trimString = foldr (\c acc -> if c == ' ' then acc else c : acc) ""

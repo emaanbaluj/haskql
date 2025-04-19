@@ -1,5 +1,6 @@
 {
 module CQLexer where
+
 }
 
 %wrapper "posn"

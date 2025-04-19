@@ -27,6 +27,7 @@ library
       CQLexer
       CQLParser
       Eval
+      Main
       State
       Types
       Util
