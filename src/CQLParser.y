@@ -71,6 +71,12 @@ import CQLexer
     "IS" { PT _ TokenIS }
     "NOT" { PT _ TokenNOT }
     "NULL" { PT _ TokenNULL }
+    "MAP" { PT _ TokenMAP }
+    "UPPER" { PT _ TokenUPPER }
+    "LOWER" { PT _ TokenLOWER }
+    "IN"    { PT _ TokenIN }
+   
+
 %%
 stmts :: { [ Stmt ] }
     : stmt stmts { $1 : $2 }
@@ -82,6 +88,7 @@ stmt :: { Stmt }
     | "SET" var "AS" queries ";" { Set $2 $4 }
     | "WRITE" var "TO" csvfilepath ";" { Write $2 $4 }
     | "PRINT" var sort trim ";" { Print $2 $3 $4 }
+    | "MAP" "(" expr ")" "IN" var "AS" var ";" { Map $3 $6 $8 }
 
 queries :: { [Query] }
     : "(" query ")" "THEN" queries { $2 : $5 }
@@ -153,10 +160,24 @@ literals :: { [Literal] }
     : literal "," literals { $1 : $3 }
     | literal { [$1] }
 
+
+expr :: { Expr }
+    : "+" num { AddN (read $2) }
+    | "-" num { SubN (read $2) }
+    | "UPPER" { ToUpper }
+    | "LOWER" { ToLower }
+    | "NOT"   { Not }
+
+
+
 {
 parseError :: [PosnToken] -> a
 parseError [] = error "Parse error at end of file"
 parseError (tok:_) = error $ "Parse error at " ++ tokenPosn tok
+
+extract :: PosnToken -> String
+extract (PT _ (TokenVAR v)) = v
+extract _ = error "Expected a VAR token"
 
 
 data Stmt = 
@@ -164,6 +185,7 @@ data Stmt =
     | Print VarName SortOrder Trim
     | Write VarName FilePath
     | Set VarName [Query]
+    | Map Expr VarName VarName
     deriving (Show, Eq)
 
 data Query = 
@@ -176,6 +198,15 @@ data Query =
     | Distinct VarName
     | Limit Int
     deriving (Show, Eq)
+
+
+data Expr
+  = AddN Int      -- (+10)
+  | SubN Int      -- (-7)
+  | ToUpper
+  | ToLower
+  | Not
+  deriving (Eq, Show)
 
 data MergeType = LeftMerge | RightMerge deriving (Show, Eq)
 data Trim = TrimTrue | TrimFalse deriving (Show, Eq)

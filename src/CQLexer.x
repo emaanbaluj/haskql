@@ -79,6 +79,10 @@ tokens :-
     "DESC"                          {\p s -> PT p TokenDESC }
     "COL"                           {\p s -> PT p TokenCOL }
     "ROW"                           {\p s -> PT p TokenROW }
+    "MAP"                           {\p s -> PT p TokenMAP }
+    "UPPER"                         {\p s -> PT p TokenUPPER }
+    "LOWER"                         {\p s -> PT p TokenLOWER }
+    "IN"                            {\p s -> PT p TokenIN }
     @csvfilepath                    {\p s -> PT p (TokenCSV (init (tail s))) }
     @literal                        {\p s -> 
       if s == "$" 
@@ -88,6 +92,7 @@ tokens :-
     @var                            {\p s -> PT p (TokenVAR s) }
     @num                            {\p s -> PT p (TokenNUM s) }
     @float                          {\p s -> PT p (TokenFLOAT s) }
+    
 {
 data PosnToken = PT AlexPosn Token 
   deriving (Eq, Show)
@@ -153,6 +158,10 @@ data Token =
   | TokenCOMMENT
   | TokenCOL
   | TokenROW
+  | TokenMAP
+  | TokenUPPER
+  | TokenLOWER
+  | TokenIN
   | TokenCSV String 
   | TokenLITERAL String
   | TokenVAR String
