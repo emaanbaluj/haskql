@@ -1,6 +1,6 @@
 module Eval (eval) where
 
-import CQLParser (ColRowData(..), FilterQuery(..), MergeType(..), Operand(..), Operator(..), Query(..), SortOrder(..), Stmt(..), Trim(..), VarName, Expr(..))
+import CQLParser (ColRowData(..), FilterQuery(..), MergeType(..), Operand(..), Operator(..), Query(..), SortOrder(..), Stmt(..), Trim(..), VarName, Expr(..), ColRow(..))
 import Control.Monad.State
 import Data.List (nub, sort, sortBy, transpose)
 import qualified Data.Map as Map
@@ -13,6 +13,38 @@ import Data.Char (toUpper, toLower)
 
 -- Main evaluation entry point
 eval :: Stmt -> CSVState ()
+
+eval (Access2D var firstAxis firstIdx secondAxis secondIdx) = do
+  ctx <- get
+  case Map.lookup var ctx of
+    Nothing -> liftIO $ putStrLn ("<error> no such table: " ++ var)
+    Just table -> do 
+      let value = access2D table firstAxis firstIdx secondAxis secondIdx
+      liftIO $ putStrLn value
+
+eval (PrintColRow (ColRowData var COL colNum) sort trim) = do
+  ctx <- get
+  case Map.lookup var ctx of
+    Nothing -> liftIO $ putStrLn ("<error> no such table: " ++ var)
+    Just table -> do
+      let column = map (!! (colNum - 1)) table
+          trimmed = case trim of
+                      TrimTrue -> map trimString column
+                      TrimFalse -> column
+      liftIO $ putStr (unlines trimmed)
+
+
+eval (PrintColRow (ColRowData var ROW rowNum) sort trim) = do
+  ctx <- get
+  case Map.lookup var ctx of
+    Nothing -> liftIO $ putStrLn ("<error> no such table: " ++ var)
+    Just table -> do
+      let row =  table !! (rowNum -1)
+          trimmed = case trim of
+                      TrimTrue -> map trimString row
+                      TrimFalse -> row
+      liftIO $ putStr (unwords trimmed)
+
 
 eval (Transpose input output) = do
   ctx <- get
@@ -89,6 +121,12 @@ apply Not "False" = "True"
 apply Not s       = s
 apply _ s = s
 
+
+access2D :: CSVData -> ColRow -> Int -> ColRow -> Int -> String
+access2D table COL colIdx ROW rowIdx = (transpose table !! (colIdx - 1)) !! (rowIdx - 1)
+access2D table ROW rowIdx COL colIdx = (table !! (rowIdx - 1)) !! (colIdx - 1)
+
+
 --------------------------------------------------------------------------------
 -- Query handling
 
@@ -96,13 +134,13 @@ queryHandler :: VarName -> Query -> CSVState ()
 queryHandler var query = do
   ctx <- get
   case query of
+
+      
     Limit limit -> do
       let table = fromJust (Map.lookup var ctx)
       let limitedData = take limit table
       addToContext var limitedData
 
-   
-   
 
     Distinct varName -> do
       let table = fromJust (Map.lookup varName ctx)
@@ -172,6 +210,10 @@ queryHandler var query = do
       let columns = transpose $ map (\(ColRowData table _ colNum) ->
             let tableData = fromJust (Map.lookup table ctx)
              in map (!! (colNum - 1)) tableData) colRows
+            
+      let columns = transpose $ map (\(ColRowData table _ colNum) ->
+            let tableData = fromJust (Map.lookup table ctx)
+             in map (!! (colNum - 1)) tableData) colRows
       addToContext var columns
 
     Concat (ColRowData table _ colNum) literals -> do
@@ -179,3 +221,5 @@ queryHandler var query = do
       let updatedData = map (\row -> insertAfter row colNum literals) tableData
       let replacedData = map (\row -> let colValue = row !! (colNum - 1) in replaceWith "$" colValue row) updatedData
       addToContext var replacedData
+
+    

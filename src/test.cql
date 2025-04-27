@@ -1,4 +1,3 @@
-IMPORT "src/output.csv" AS a;
-MAP (+10) IN a AS b;
-TRANSPOSE b AS c;
-PRINT c;
+IMPORT "src/A1.csv" AS a;
+
+PRINT a.COL(1).ROW(1);

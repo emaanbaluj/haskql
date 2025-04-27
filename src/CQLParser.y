@@ -1,6 +1,7 @@
 {
 module CQLParser where
 import CQLexer
+import Debug.Trace (trace)
 }
 
 %name parseCql
@@ -82,16 +83,21 @@ import CQLexer
 stmts :: { [ Stmt ] }
     : stmt stmts { $1 : $2 }
     | stmt { [$1] }
+    
 
 stmt :: { Stmt }
     : "IMPORT" csvfilepath "AS" var ";" { Import $2 $4 }
     | "SET" var "AS" "(" queries ")" ";" { Set $2 $5 }
     | "SET" var "AS" queries ";" { Set $2 $4 }
     | "WRITE" var "TO" csvfilepath ";" { Write $2 $4 }
+    | "PRINT" colrow sort trim ";" { PrintColRow $2 $3 $4 }
+    | "PRINT" var "." rowOrCol "(" num ")" "." rowOrCol "(" num ")" sort trim ";" { Access2D $2 $4 (read $6) $9 (read $11) }
     | "PRINT" var sort trim ";" { Print $2 $3 $4 }
     | "MAP" "(" expr ")" "IN" var "AS" var ";" { Map $3 $6 $8 }
     | "TRANSPOSE" var "AS" var ";" { Transpose $2 $4 }
     
+
+ 
 
 queries :: { [Query] }
     : "(" query ")" "THEN" queries { $2 : $5 }
@@ -118,6 +124,7 @@ filterquery :: { FilterQuery }
     | colrow operator operand { FilterColRowOperand $1 $2 $3 }
     | colrow "IS" "NULL" { FilterColRowIsNull $1 }
     | colrow "IS" "NOT" "NULL" { FilterColRowIsNotNull $1 }
+
 
 operand :: { Operand }
     : num { OperandNum (read $1) }
@@ -164,7 +171,6 @@ literals :: { [Literal] }
     : literal "," literals { $1 : $3 }
     | literal { [$1] }
 
-
 expr :: { Expr }
     : "+" num { AddN (read $2) }
     | "-" num { SubN (read $2) }
@@ -184,13 +190,25 @@ extract (PT _ (TokenVAR v)) = v
 extract _ = error "Expected a VAR token"
 
 
+
+extractStr :: PosnToken -> String
+extractStr (PT _ (TokenNUM n)) = n
+extractStr (PT _ (TokenFLOAT f)) = f
+extractStr (PT _ (TokenVAR v)) = v
+extractStr (PT _ (TokenLITERAL l)) = l
+extractStr (PT _ (TokenCSV l)) = l
+extractStr t = trace ("Unexpected token: " ++ show t) (error "Unexpected token format")
+
+
 data Stmt = 
      Import FilePath VarName
     | Print VarName SortOrder Trim
+    | PrintColRow ColRowData SortOrder Trim
     | Write VarName FilePath
     | Transpose VarName VarName
     | Set VarName [Query]
-    | Map Expr VarName VarName
+    | Map Expr VarName VarName 
+    | Access2D VarName ColRow Int ColRow Int
     deriving (Show, Eq)
 
 data Query = 
@@ -202,12 +220,13 @@ data Query =
     | Union [VarName]
     | Distinct VarName
     | Limit Int
+
     deriving (Show, Eq)
 
 
 data Expr
-  = AddN Int      -- (+10)
-  | SubN Int      -- (-7)
+  = AddN Int      
+  | SubN Int      
   | ToUpper
   | ToLower
   | Not
