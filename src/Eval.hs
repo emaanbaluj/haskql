@@ -13,7 +13,6 @@ import Data.Char (toUpper, toLower)
 
 -- Main evaluation entry point
 eval :: Stmt -> CSVState ()
-
 eval (Access2D var firstAxis firstIdx secondAxis secondIdx) = do
   ctx <- get
   case Map.lookup var ctx of
@@ -33,7 +32,6 @@ eval (PrintColRow (ColRowData var COL colNum) sort trim) = do
                       TrimFalse -> column
       liftIO $ putStr (unlines trimmed)
 
-
 eval (PrintColRow (ColRowData var ROW rowNum) sort trim) = do
   ctx <- get
   case Map.lookup var ctx of
@@ -51,29 +49,29 @@ eval (Transpose input output) = do
   case Map.lookup input ctx of
     Nothing -> liftIO $ putStrLn ("<error> no such table: " ++ input)
     Just table -> addToContext output (transpose table)
+    
 
--- MAP (expr) IN input AS output
 eval (Map expr input output) = do
   ctx <- get
   case Map.lookup input ctx of
     Nothing -> liftIO $ putStrLn ("<error> no such table: " ++ input)
-    Just (header:rows) -> do
+    Just rows -> do
       let newRows = map (map (apply expr)) rows
-      addToContext output (header : newRows)
+      addToContext output newRows
 
--- WRITE var TO file
+
 eval (Write var filePath) = do
   ctx <- get
   case Map.lookup var ctx of
     Nothing    -> liftIO $ putStrLn ("<error> no such variable: " ++ var)
     Just table -> liftIO $ writeToCSV table filePath
 
--- IMPORT file AS var
+
 eval (Import file var) = do
   result <- liftIO $ readCSV file
   addToContext var result
 
--- PRINT var
+
 eval (Print var sortOrder trim) = do
   ctx <- get
   let result = Map.lookup var ctx
@@ -123,8 +121,8 @@ apply _ s = s
 
 
 access2D :: CSVData -> ColRow -> Int -> ColRow -> Int -> String
-access2D table COL colIdx ROW rowIdx = (transpose table !! (colIdx - 1)) !! (rowIdx - 1)
-access2D table ROW rowIdx COL colIdx = (table !! (rowIdx - 1)) !! (colIdx - 1)
+access2D table COL colIdx ROW rowIdx = (transpose table !! (rowIdx - 1)) !! (colIdx - 1)
+access2D table ROW rowIdx COL colIdx = (table !! (colIdx - 1)) !! (rowIdx - 1)
 
 
 --------------------------------------------------------------------------------

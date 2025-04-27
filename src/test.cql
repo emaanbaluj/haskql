@@ -1,9 +1,7 @@
-IMPORT "src/output.csv" AS students;
+IMPORT "src/A1.csv" AS a;
 
-SET adults AS (
-    FILTER students WHERE students.COL(2) >= 18
-);
+MAP (+10) IN a AS b;
 
-PRINT adults;
+PRINT b;
 
-WRITE adults TO "src/adults.csv";
+PRINT b.COL(1).ROW(1);
