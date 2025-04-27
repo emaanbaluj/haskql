@@ -77,6 +77,7 @@ import Debug.Trace (trace)
     "LOWER" { PT _ TokenLOWER }
     "IN"    { PT _ TokenIN }
     "TRANSPOSE" { PT _ TokenTRANSPOSE }
+    "WHERE" { PT _ TokenWHERE }
    
 
 %%
@@ -108,6 +109,7 @@ query :: { Query }
     : "GET" colrows { Get $2 }
     | "CROSS" "(" vars ")" { Cross $3 }
     | "FILTER" filterquery { Filter $2 }
+    | "FILTER" var "WHERE" wherecondition { Filter $4 }
     | "DISTINCT" var { Distinct $2 }
     | mergetype "(" var "," var ")" "ON" "COL" num { Merge $1 $3 $5 (read $9) }
     | "UNION" "(" vars ")" { Union $3 }
@@ -124,6 +126,9 @@ filterquery :: { FilterQuery }
     | colrow operator operand { FilterColRowOperand $1 $2 $3 }
     | colrow "IS" "NULL" { FilterColRowIsNull $1 }
     | colrow "IS" "NOT" "NULL" { FilterColRowIsNotNull $1 }
+   
+wherecondition :: { FilterQuery }
+    : colrow operator operand { FilterColRowOperand $1 $2 $3 }
 
 
 operand :: { Operand }
@@ -150,6 +155,8 @@ sort :: { SortOrder }
 trim :: { Trim }
     : "NOTRIM" { TrimFalse }
     | { TrimTrue }
+
+
 
 colrows :: { [ColRowData] }
     : colrow "," colrows { $1 : $3 }

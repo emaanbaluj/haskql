@@ -83,6 +83,7 @@ tokens :-
     "UPPER"                         {\p s -> PT p TokenUPPER }
     "LOWER"                         {\p s -> PT p TokenLOWER }
     "IN"                            {\p s -> PT p TokenIN }
+    "WHERE"                         {\p s -> PT p TokenWHERE }
     "TRANSPOSE"                     {\p s -> PT p TokenTRANSPOSE}
     @csvfilepath                    {\p s -> PT p (TokenCSV (init (tail s))) }
     @literal                        {\p s -> 
@@ -164,6 +165,7 @@ data Token =
   | TokenLOWER
   | TokenIN
   | TokenTRANSPOSE
+  | TokenWHERE
   | TokenCSV String 
   | TokenLITERAL String
   | TokenVAR String
