@@ -5,4 +5,4 @@ SET c AS (
     CROSS(a, b)
 );
 
-WRITE c TO "src/output.csv";
+PRINT c;

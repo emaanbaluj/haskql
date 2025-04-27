@@ -101,7 +101,7 @@ stmt :: { Stmt }
  
 
 queries :: { [Query] }
-    : "(" query ")" "THEN" queries { $2 : $5 }
+    : "(" query ")" "IN" queries { $2 : $5 }
     | "(" query ")" ">>=" queries { $2 : $5 }
     | "(" query ")" { [$2] }
 
