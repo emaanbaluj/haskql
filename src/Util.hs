@@ -13,11 +13,13 @@ module Util
     getRowFromTable,
     setColInTable,
     setRowInTable,
+    warning,
   )
 where
 
 import CQLParser (Stmt (..))
 import Data.List (intercalate)
+import Debug.Trace (trace)
 import Types (CSVData, CSVRow)
 
 splitOn :: Char -> String -> [String]
@@ -85,3 +87,6 @@ setColInTable table colNum = zipWith (\row val -> take (colNum - 1) row ++ [val]
 setRowInTable :: CSVData -> Int -> CSVRow -> CSVData
 setRowInTable table rowNum newRow =
   take (rowNum - 1) table ++ [newRow] ++ drop rowNum table
+
+warning :: String -> a -> a
+warning msg = trace ("\n```\nWARNING: " ++ msg ++ "\n```\n")
