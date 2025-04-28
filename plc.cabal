@@ -27,8 +27,8 @@ library
       CQLexer
       CQLParser
       Eval
-      Main
       State
+      TypeChecker
       Types
       Util
   other-modules:
