@@ -1,6 +1,6 @@
 module TypeChecker (typecheck) where
 
-import CQLParser (Expr (..), Stmt (..), VarName)
+import CQLParser (Expr (..), Query (..), Stmt (..), VarName)
 import Control.Monad.State (MonadIO (liftIO), MonadState (get), StateT, modify)
 import Data.Char (isDigit, toLower)
 import Data.Map (Map)
@@ -27,7 +27,6 @@ typecheck (Import filepath var) = do
   let csvType = typeOf var result
   liftIO $ print csvType
   modify $ Map.insert var csvType
-typecheck (Set _ _) = undefined
 typecheck (Map expr varIn _) = do
   t <- lookupType varIn
   case t of
@@ -42,7 +41,20 @@ typecheck (Map expr varIn _) = do
       AddN _ -> return ()
       SubN _ -> return ()
       _ -> error ("Type mismatch - Integer/Float CSV data \"" ++ varIn ++ "\" can only be mapped with addition or subtraction")
+typecheck (Set var queries) = mapM_ (queryHandler var) queries
 typecheck _ = return ()
+
+queryHandler :: VarName -> Query -> TypeChecker ()
+queryHandler _ query = do
+  case query of
+    Merge _ var1 var2 _ -> do
+      t1 <- lookupType var1
+      t2 <- lookupType var2
+      case (getColumns t1, getColumns t2) of
+        (c1, c2) -> if c1 == c2 then return () else warning "Type mismatch - Merge operation requires two variables with the same number of columns" return ()
+    _ -> return ()
+
+  return ()
 
 typeOf :: VarName -> CSVData -> CSVType
 typeOf _ [] = TString 0
@@ -59,7 +71,7 @@ isIntType csv = all (all isInt) csv
   where
     isInt :: String -> Bool
     isInt [] = False
-    isInt (x : xs) = (x == '-' && not (null xs) && all isDigit xs) || (isDigit x && all isDigit xs)
+    isInt (x : xs) = x == '-' && not (null xs) && all isDigit xs || isDigit x && all isDigit xs
 
 isFloatType :: CSVData -> Bool
 isFloatType [] = True
@@ -82,3 +94,9 @@ isEqualLengthColumns :: CSVData -> Bool
 isEqualLengthColumns [] = True
 isEqualLengthColumns (firstRow : restRows) =
   all (\row -> length row == length firstRow) restRows
+
+getColumns :: CSVType -> Int
+getColumns (TString c) = c
+getColumns (TInt c) = c
+getColumns (TFloat c) = c
+getColumns (TBool c) = c
