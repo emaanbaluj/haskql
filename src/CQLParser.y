@@ -16,7 +16,6 @@ import Debug.Trace (trace)
     "SORT"     { PT _ TokenSORT }
     "AS"     { PT _ TokenAS }
     "IMPORT" { PT _ TokenIMPORT }
-    "EXTRACT" { PT _ TokenEXTRACT }
     "SET" { PT _ TokenSET }
     "CROSS" { PT _ TokenCROSS }
     "NOTRIM" { PT _ TokenNOTRIM }
@@ -186,27 +185,10 @@ expr :: { Expr }
     | "LOWER" { ToLower }
     | "NOT"   { Not }
 
-
-
 {
 parseError :: [PosnToken] -> a
 parseError [] = error "Parse error at end of file"
 parseError (tok:_) = error $ "Parse error at " ++ tokenPosn tok
-
-extract :: PosnToken -> String
-extract (PT _ (TokenVAR v)) = v
-extract _ = error "Expected a VAR token"
-
-
-
-extractStr :: PosnToken -> String
-extractStr (PT _ (TokenNUM n)) = n
-extractStr (PT _ (TokenFLOAT f)) = f
-extractStr (PT _ (TokenVAR v)) = v
-extractStr (PT _ (TokenLITERAL l)) = l
-extractStr (PT _ (TokenCSV l)) = l
-extractStr t = trace ("Unexpected token: " ++ show t) (error "Unexpected token format")
-
 
 data Stmt = 
      Import FilePath VarName

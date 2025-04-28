@@ -20,7 +20,6 @@ tokens :-
     $white+                         ;
     @comment                        ;
     "AS"                            {\p s -> PT p TokenAS }
-    "EXTRACT"                       {\p s -> PT p TokenEXTRACT }
     "SET"                           {\p s -> PT p TokenSET }
     "CROSS"                         {\p s -> PT p TokenCROSS }
     "("                             {\p s -> PT p TokenLPAREN }
@@ -101,7 +100,6 @@ data PosnToken = PT AlexPosn Token
 
 data Token = 
   TokenAS
-  | TokenEXTRACT
   | TokenSET
   | TokenCROSS
   | TokenLPAREN
