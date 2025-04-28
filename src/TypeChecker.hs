@@ -19,7 +19,7 @@ type TypeChecker = StateT CSVTypeMap IO
 lookupType :: VarName -> TypeChecker CSVType
 lookupType var = do
   ctx <- get
-  maybe (warning ("Variable " ++ var ++ " not found") undefined) return (Map.lookup var ctx)
+  maybe (warning ("Variable " ++ var ++ " not found") return (TString 0)) return (Map.lookup var ctx)
 
 typecheck :: Stmt -> TypeChecker ()
 typecheck (Import filepath var) = do
@@ -32,14 +32,14 @@ typecheck (Map expr varIn _) = do
     TString _ -> case expr of
       ToUpper -> return ()
       ToLower -> return ()
-      _ -> error ("Type mismatch - String CSV data \"" ++ varIn ++ "\" can only be mapped with UPPER or LOWER")
+      _ -> warning ("Type mismatch - String CSV data \"" ++ varIn ++ "\" can only be mapped with UPPER or LOWER") return ()
     TBool _ -> case expr of
       Not -> return ()
-      _ -> error ("Type mismatch - Boolean CSV data \"" ++ varIn ++ "\" can only be mapped with NOT")
+      _ -> warning ("Type mismatch - Boolean CSV data \"" ++ varIn ++ "\" can only be mapped with NOT") return ()
     _ -> case expr of
       AddN _ -> return ()
       SubN _ -> return ()
-      _ -> error ("Type mismatch - Integer/Float CSV data \"" ++ varIn ++ "\" can only be mapped with addition or subtraction")
+      _ -> warning ("Type mismatch - Integer/Float CSV data \"" ++ varIn ++ "\" can only be mapped with addition or subtraction") return ()
 typecheck (Set var queries) = mapM_ (queryHandler var) queries
 typecheck _ = return ()
 
