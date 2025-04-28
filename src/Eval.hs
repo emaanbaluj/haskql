@@ -1,6 +1,6 @@
 module Eval (eval) where
 
-import CQLParser (ColRow (..), ColRowData (..), Expr (..), FilterQuery (..), MergeType (..), Operand (..), Operator (..), Query (..), SortOrder (..), Stmt (..), Trim (..), VarName)
+import CQLParser (ColRow (..), ColRowData (..), Expr (..), FilterQuery (..), MergeType (..), Operand (..), Operator (..), Query (..), SortOrder (..), Stmt (..), Trim (..), VarName, ColData (..))
 import Control.Monad.State
   ( MonadIO (liftIO),
     MonadState (get),
@@ -131,21 +131,21 @@ queryHandler var query = do
         mergeRows :: MergeType -> [[(String, String)]] -> [CSVRow]
         mergeRows LeftMerge = map (map (\(p, q) -> if null p then q else p))
         mergeRows RightMerge = map (map (\(p, q) -> if null q then p else q))
-    Filter filterQuery -> do
+    Filter table filterQuery -> do
       filteredResult <- filterResult filterQuery
       addToContext var filteredResult
       where
         filterResult :: FilterQuery -> CSVState CSVData
-        filterResult (FilterColRowIsNotNull (ColRowData table _ colNum)) = do
+        filterResult (FilterColRowIsNotNull (ColData colNum)) = do
           let tableData = fromJust (Map.lookup table ctx)
           return $ filter (\row -> row !! (colNum - 1) /= "") tableData
-        filterResult (FilterColRowIsNull (ColRowData table _ colNum)) = do
+        filterResult (FilterColRowIsNull (ColData colNum)) = do
           let tableData = fromJust (Map.lookup table ctx)
           return $ filter (\row -> row !! (colNum - 1) == "") tableData
-        filterResult (FilterColRow (ColRowData table _ colNum) operator (ColRowData _ _ colNum2)) = do
+        filterResult (FilterColRow (ColData colNum) operator (ColData colNum2)) = do
           let tableData = fromJust (Map.lookup table ctx)
           return $ filter (\row -> filterFunction operator (row !! (colNum - 1)) (row !! (colNum2 - 1))) tableData
-        filterResult (FilterColRowOperand (ColRowData table _ colNum) operator operand) = do
+        filterResult (FilterColRowOperand (ColData colNum) operator operand) = do
           let tableData = fromJust (Map.lookup table ctx)
           return $ case operand of
             OperandLiteral literal ->

@@ -36,7 +36,6 @@ import Debug.Trace (trace)
     "-" { PT _ TokenMINUS }
     "*" { PT _ TokenMULT }
     "/" { PT _ TokenDIV }
-    "--" { PT _ TokenCOMMENT }
     "." { PT _ TokenDOT }
     "FILTER" { PT _ TokenFILTER }
     "DISTINCT" { PT _ TokenDISTINCT }
@@ -44,27 +43,16 @@ import Debug.Trace (trace)
     "LIMIT" { PT _ TokenLIMIT }
     "REPLACE" { PT _ TokenREPLACE }
     "WITH" { PT _ TokenWITH }
-    "REVERSE" { PT _ TokenREVERSE }
-    "ARITY" { PT _ TokenARITY }
     "UNION" { PT _ TokenUNION }
-    "INTERSECT" { PT _ TokenINTERSECT }
-    "SUBTRACT" { PT _ TokenSUBTRACT }
-    "WHEN" { PT _ TokenWHEN }
-    "{" { PT _ TokenLBRACE }
-    "}" { PT _ TokenRBRACE }
     "CONCAT" { PT _ TokenCONCAT }
     "COUNT" { PT _ TokenCOUNT }
     "WRITE" { PT _ TokenWRITE }
     "TO" { PT _ TokenTO }
-    "FROM" { PT _ TokenFROM }
     "COL" { PT _ TokenCOL }
     "ROW" { PT _ TokenROW }
     "PRINT" { PT _ TokenPRINT }
-    "THEN" { PT _ TokenTHEN }
-    ">>=" { PT _ TokenBIND }
     "ASC" { PT _ TokenASC }
     "DESC" { PT _ TokenDESC }
-    "ALL" { PT _ TokenALL }
     "LEFT_MERGE" { PT _ TokenLEFTMERGE }
     "RIGHT_MERGE" { PT _ TokenRIGHTMERGE }
     "ON" { PT _ TokenON }
@@ -77,14 +65,12 @@ import Debug.Trace (trace)
     "IN"    { PT _ TokenIN }
     "TRANSPOSE" { PT _ TokenTRANSPOSE }
     "WHERE" { PT _ TokenWHERE }
-   
 
 %%
 stmts :: { [ Stmt ] }
     : stmt stmts { $1 : $2 }
     | stmt { [$1] }
     
-
 stmt :: { Stmt }
     : "IMPORT" csvfilepath "AS" var ";" { Import $2 $4 }
     | "SET" var "AS" "(" queries ")" ";" { Set $2 $5 }
@@ -95,41 +81,34 @@ stmt :: { Stmt }
     | "PRINT" var sort trim ";" { Print $2 $3 $4 }
     | "MAP" "(" expr ")" "IN" var "AS" var ";" { Map $3 $6 $8 }
     | "TRANSPOSE" var "AS" var ";" { Transpose $2 $4 }
-    
-
- 
 
 queries :: { [Query] }
     : "(" query ")" "IN" queries { $2 : $5 }
-    | "(" query ")" ">>=" queries { $2 : $5 }
     | "(" query ")" { [$2] }
 
 query :: { Query }
     : "GET" colrows { Get $2 }
     | "CROSS" "(" vars ")" { Cross $3 }
-    | "FILTER" filterquery { Filter $2 }
-    | "FILTER" var "WHERE" wherecondition { Filter $4 }
+    | "FILTER" var "WHERE" filterquery { Filter $2 $4 }
     | "DISTINCT" var { Distinct $2 }
-    | mergetype "(" var "," var ")" "ON" "COL" num { Merge $1 $3 $5 (read $9) }
     | "UNION" "(" vars ")" { Union $3 }
     | "LIMIT" num { Limit (read $2) }
-    | "CONCAT" colrow "WITH" "{" literals "}" { Concat $2 $5 }
+    | "CONCAT" colrow "WITH" "(" literals ")" { Concat $2 $5 }
     | "REPLACE" colrow "WITH" colrow { Replace $2 $4 }
-   
+    | mergetype "(" var "," var ")" "ON" "COL" num { Merge $1 $3 $5 (read $9) }
 
 mergetype :: { MergeType }
     : "LEFT_MERGE" { LeftMerge }
     | "RIGHT_MERGE" { RightMerge }
 
 filterquery :: { FilterQuery }
-    : colrow operator colrow { FilterColRow $1 $2 $3 }
-    | colrow operator operand { FilterColRowOperand $1 $2 $3 }
-    | colrow "IS" "NULL" { FilterColRowIsNull $1 }
-    | colrow "IS" "NOT" "NULL" { FilterColRowIsNotNull $1 }
-   
-wherecondition :: { FilterQuery }
-    : colrow operator operand { FilterColRowOperand $1 $2 $3 }
+    : col operator col { FilterColRow $1 $2 $3 }
+    | col operator operand { FilterColRowOperand $1 $2 $3 }
+    | col "IS" "NULL" { FilterColRowIsNull $1 }
+    | col "IS" "NOT" "NULL" { FilterColRowIsNotNull $1 }
 
+col :: { ColData }
+    : "COL" "(" num ")" { ColData (read $3) }
 
 operand :: { Operand }
     : num { OperandNum (read $1) }
@@ -156,15 +135,12 @@ trim :: { Trim }
     : "NOTRIM" { TrimFalse }
     | { TrimTrue }
 
-
-
 colrows :: { [ColRowData] }
     : colrow "," colrows { $1 : $3 }
     | colrow { [$1] }
 
 colrow :: { ColRowData }
     : var "." rowOrCol "(" num ")" { ColRowData $1 $3 (read $5) }
-    | var "." rowOrCol "(" "ALL" ")" { ColRowData $1 $3 0 }
 
 rowOrCol :: { ColRow }
     : "COL" { COL }
@@ -204,7 +180,7 @@ data Stmt =
 data Query = 
     Get [ColRowData]
     | Cross [VarName]
-    | Filter FilterQuery
+    | Filter VarName FilterQuery
     | Merge MergeType VarName VarName Int
     | Concat ColRowData [Literal]
     | Union [VarName]
@@ -212,7 +188,6 @@ data Query =
     | Limit Int
     | Replace ColRowData ColRowData
     deriving (Show, Eq)
-
 
 data Expr
   = AddN Int      
@@ -229,13 +204,15 @@ data ColRow = COL | ROW deriving (Eq, Show)
 data SortOrder = ASC | DESC deriving (Eq, Show)
 
 data Operator = Equal | NotEqual | LessThan | GreaterThan | LessThanOrEqual | GreaterThanOrEqual deriving (Eq, Show)
-data FilterQuery = FilterColRow ColRowData Operator ColRowData | FilterColRowOperand ColRowData Operator Operand | FilterColRowIsNull ColRowData | FilterColRowIsNotNull ColRowData deriving (Show, Eq) 
+data FilterQuery = FilterColRow ColData Operator ColData | FilterColRowOperand ColData Operator Operand | FilterColRowIsNull ColData | FilterColRowIsNotNull ColData deriving (Show, Eq) 
 
 data Operand = OperandNum Int | OperandLiteral String | OperandFloat Float deriving (Eq, Show)
 data ColRowData = 
     ColRowData VarName ColRow Int
     deriving (Show, Eq)
-
+data ColData = 
+    ColData Int
+    deriving (Show, Eq)
 type CSVFilePath = String
 type VarName = String
 type Literal = String

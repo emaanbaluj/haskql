@@ -43,7 +43,6 @@ tokens :-
     "-"                             {\p _ -> PT p TokenMINUS }
     "*"                             {\p _ -> PT p TokenMULT }
     "/"                             {\p _ -> PT p TokenDIV }
-    "--"                            {\p _ -> PT p TokenCOMMENT }
     "PRINT"                         {\p _ -> PT p TokenPRINT }
     "FILTER"                        {\p _ -> PT p TokenFILTER }
     "DISTINCT"                      {\p _ -> PT p TokenDISTINCT }
@@ -54,24 +53,13 @@ tokens :-
     "RIGHT_MERGE"                   {\p _ -> PT p TokenRIGHTMERGE }
     "ON"                            {\p _ -> PT p TokenON }
     "UNION"                         {\p _ -> PT p TokenUNION }
-    "INTERSECT"                     {\p _ -> PT p TokenINTERSECT }
-    "SUBTRACT"                      {\p _ -> PT p TokenSUBTRACT }
     "REPLACE"                       {\p _ -> PT p TokenREPLACE }
     "WITH"                          {\p _ -> PT p TokenWITH }
-    "REVERSE"                       {\p _ -> PT p TokenREVERSE }
-    ">>="                           {\p _ -> PT p TokenBIND }
-    "THEN"                          {\p _ -> PT p TokenTHEN }
-    "ARITY"                         {\p _ -> PT p TokenARITY }
-    "WHEN"                          {\p _ -> PT p TokenWHEN }
-    "ALL"                           {\p _ -> PT p TokenALL }
-    "{"                             {\p _ -> PT p TokenLBRACE }
-    "}"                             {\p _ -> PT p TokenRBRACE }
     "CONCAT"                        {\p _ -> PT p TokenCONCAT }
     "COUNT"                         {\p _ -> PT p TokenCOUNT }
     "WRITE"                         {\p _ -> PT p TokenWRITE } 
     "TO"                            {\p _ -> PT p TokenTO } 
     "IMPORT"                        {\p _ -> PT p TokenIMPORT }
-    "FROM"                          {\p _ -> PT p TokenFROM }
     "SORT"                          {\p _ -> PT p TokenSORT }
     "ASC"                           {\p _ -> PT p TokenASC }
     "DESC"                          {\p _ -> PT p TokenDESC }
@@ -136,24 +124,13 @@ data Token =
   | TokenRIGHTMERGE
   | TokenON
   | TokenUNION
-  | TokenINTERSECT
-  | TokenTHEN
-  | TokenSUBTRACT
   | TokenREPLACE
   | TokenWITH
-  | TokenREVERSE
-  | TokenARITY
-  | TokenWHEN
-  | TokenALL
-  | TokenLBRACE
-  | TokenRBRACE
   | TokenCONCAT
-  | TokenBIND
   | TokenCOUNT
   | TokenWRITE
   | TokenTO
   | TokenIMPORT
-  | TokenFROM
   | TokenCOMMENT
   | TokenCOL
   | TokenROW
