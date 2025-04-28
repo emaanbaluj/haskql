@@ -6,7 +6,7 @@ import Data.Char (isDigit, toLower)
 import Data.Map (Map)
 import qualified Data.Map as Map
 import Types (CSVData)
-import Util (readCSV, warning)
+import Util (allSame, readCSV, warning)
 
 type ColumnCount = Int
 
@@ -25,7 +25,6 @@ typecheck :: Stmt -> TypeChecker ()
 typecheck (Import filepath var) = do
   result <- liftIO $ readCSV filepath
   let csvType = typeOf var result
-  liftIO $ print csvType
   modify $ Map.insert var csvType
 typecheck (Map expr varIn _) = do
   t <- lookupType varIn
@@ -47,6 +46,12 @@ typecheck _ = return ()
 queryHandler :: VarName -> Query -> TypeChecker ()
 queryHandler _ query = do
   case query of
+    Cross vars -> do
+      ts <- mapM lookupType vars
+      let columns = map getColumns ts
+      if allSame columns then return () else warning ("Type mismatch - Cross operation requires all variables " ++ show vars ++ " to have the same number of columns") return ()
+      if allSameType ts then return () else warning ("Type mismatch - Cross operation requires all variables " ++ show vars ++ " to have the same type for type safety") return ()
+      return ()
     Merge _ var1 var2 _ -> do
       t1 <- lookupType var1
       t2 <- lookupType var2
@@ -100,3 +105,13 @@ getColumns (TString c) = c
 getColumns (TInt c) = c
 getColumns (TFloat c) = c
 getColumns (TBool c) = c
+
+allSameType :: [CSVType] -> Bool
+allSameType [] = True
+allSameType (x : xs) = all (sameTypeAs x) xs
+  where
+    sameTypeAs (TString _) (TString _) = True
+    sameTypeAs (TInt _) (TInt _) = True
+    sameTypeAs (TFloat _) (TFloat _) = True
+    sameTypeAs (TBool _) (TBool _) = True
+    sameTypeAs _ _ = False

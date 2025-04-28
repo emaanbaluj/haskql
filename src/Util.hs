@@ -14,6 +14,7 @@ module Util
     setColInTable,
     setRowInTable,
     warning,
+    allSame,
   )
 where
 
@@ -90,3 +91,7 @@ setRowInTable table rowNum newRow =
 
 warning :: String -> a -> a
 warning msg = trace ("\n```\nWARNING: " ++ msg ++ "\n```\n")
+
+allSame :: [Int] -> Bool
+allSame [] = True
+allSame (x : xs) = all (== x) xs
