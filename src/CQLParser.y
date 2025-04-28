@@ -35,6 +35,7 @@ import Debug.Trace (trace)
     "+" { PT _ TokenPLUS }
     "-" { PT _ TokenMINUS }
     "*" { PT _ TokenMULT }
+    "FROM" { PT _ TokenFROM }
     "/" { PT _ TokenDIV }
     "." { PT _ TokenDOT }
     "FILTER" { PT _ TokenFILTER }
@@ -92,7 +93,7 @@ query :: { Query }
     | "FILTER" var "WHERE" filterquery { Filter $2 $4 }
     | "DISTINCT" var { Distinct $2 }
     | "UNION" "(" vars ")" { Union $3 }
-    | "LIMIT" num { Limit (read $2) }
+    | "LIMIT" num "FROM" var { Limit (read $2) $4 }
     | "CONCAT" colrow "WITH" "(" literals ")" { Concat $2 $5 }
     | "REPLACE" colrow "WITH" colrow { Replace $2 $4 }
     | mergetype "(" var "," var ")" "ON" "COL" num { Merge $1 $3 $5 (read $9) }
@@ -185,7 +186,7 @@ data Query =
     | Concat ColRowData [Literal]
     | Union [VarName]
     | Distinct VarName
-    | Limit Int
+    | Limit Int VarName
     | Replace ColRowData ColRowData
     deriving (Show, Eq)
 

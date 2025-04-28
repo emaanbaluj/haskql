@@ -65,6 +65,7 @@ tokens :-
     "DESC"                          {\p _ -> PT p TokenDESC }
     "COL"                           {\p _ -> PT p TokenCOL }
     "ROW"                           {\p _ -> PT p TokenROW }
+    "FROM"                          {\p _ -> PT p TokenFROM }
     "MAP"                           {\p _ -> PT p TokenMAP }
     "UPPER"                         {\p _ -> PT p TokenUPPER }
     "LOWER"                         {\p _ -> PT p TokenLOWER }
@@ -119,6 +120,7 @@ data Token =
   | TokenASC
   | TokenDESC
   | TokenLIMIT
+  | TokenFROM
   | TokenNOTRIM
   | TokenLEFTMERGE
   | TokenRIGHTMERGE

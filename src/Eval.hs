@@ -107,8 +107,8 @@ queryHandler :: VarName -> Query -> CSVState ()
 queryHandler var query = do
   ctx <- get
   case query of
-    Limit limit -> do
-      let table = fromJust (Map.lookup var ctx)
+    Limit limit varName -> do
+      let table = fromJust (Map.lookup varName ctx)
       let limitedData = take limit table
       addToContext var limitedData
     Distinct varName -> do
