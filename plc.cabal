@@ -29,7 +29,6 @@ library
       Eval
       Main
       State
-      TypeChecker
       Types
       Util
   other-modules:

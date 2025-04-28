@@ -1,7 +1,7 @@
 module State (addToContext, CSVState) where
 
 import CQLParser (VarName)
-import Control.Monad.State
+import Control.Monad.State (MonadState (get, put))
 import qualified Data.Map as Map
 import Types (CSVData, CSVState)
 
