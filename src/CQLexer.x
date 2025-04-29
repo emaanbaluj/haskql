@@ -18,19 +18,19 @@ $digit = [0-9]
 tokens :-
     $white+                         ;
     @comment                        ;
-    "AS"                            {\p _ -> PT p TokenAS }
-    "SET"                           {\p _ -> PT p TokenSET }
-    "CROSS"                         {\p _ -> PT p TokenCROSS }
+    "AS"|"as"                       {\p _ -> PT p TokenAS }
+    "SET"|"set"                     {\p _ -> PT p TokenSET }
+    "CROSS"|"cross"                 {\p _ -> PT p TokenCROSS }
     "("                             {\p _ -> PT p TokenLPAREN }
     ")"                             {\p _ -> PT p TokenRPAREN }
     ","                             {\p _ -> PT p TokenCOMMA }
     ";"                             {\p _ -> PT p TokenSEMICOLON }
     "="                             {\p _ -> PT p TokenEQUAL }
     "||"                            {\p _ -> PT p TokenOR }
-    "IS"                            {\p _ -> PT p TokenIS }
-    "NOT"                           {\p _ -> PT p TokenNOT }
+    "IS"|"is"                       {\p _ -> PT p TokenIS }
+    "NOT"|"not"                     {\p _ -> PT p TokenNOT }
     "&&"                            {\p _ -> PT p TokenAND }
-    "NULL"                          {\p _ -> PT p TokenNULL }
+    "NULL"|"null"                   {\p _ -> PT p TokenNULL }
     "=="                            {\p _ -> PT p TokenEQ }
     "!="                            {\p _ -> PT p TokenNEQ }
     "<="                            {\p _ -> PT p TokenLE }
@@ -43,38 +43,38 @@ tokens :-
     "-"                             {\p _ -> PT p TokenMINUS }
     "*"                             {\p _ -> PT p TokenMULT }
     "/"                             {\p _ -> PT p TokenDIV }
-    "PRINT"                         {\p _ -> PT p TokenPRINT }
-    "FILTER"                        {\p _ -> PT p TokenFILTER }
-    "DISTINCT"                      {\p _ -> PT p TokenDISTINCT }
-    "GET"                           {\p _ -> PT p TokenGET }
-    "LIMIT"                         {\p _ -> PT p TokenLIMIT }
-    "NOTRIM"                        {\p _ -> PT p TokenNOTRIM }
-    "LEFT_MERGE"                    {\p _ -> PT p TokenLEFTMERGE }
-    "RIGHT_MERGE"                   {\p _ -> PT p TokenRIGHTMERGE }
-    "ON"                            {\p _ -> PT p TokenON }
-    "UNION"                         {\p _ -> PT p TokenUNION }
-    "REPLACE"                       {\p _ -> PT p TokenREPLACE }
-    "WITH"                          {\p _ -> PT p TokenWITH }
-    "CONCAT"                        {\p _ -> PT p TokenCONCAT }
-    "COUNT"                         {\p _ -> PT p TokenCOUNT }
-    "WRITE"                         {\p _ -> PT p TokenWRITE } 
-    "TO"                            {\p _ -> PT p TokenTO } 
-    "IMPORT"                        {\p _ -> PT p TokenIMPORT }
-    "SORT"                          {\p _ -> PT p TokenSORT }
-    "ASC"                           {\p _ -> PT p TokenASC }
-    "DESC"                          {\p _ -> PT p TokenDESC }
-    "COL"                           {\p _ -> PT p TokenCOL }
-    "ROW"                           {\p _ -> PT p TokenROW }
-    "FROM"                          {\p _ -> PT p TokenFROM }
-    "MAP"                           {\p _ -> PT p TokenMAP }
-    "UPPER"                         {\p _ -> PT p TokenUPPER }
-    "LOWER"                         {\p _ -> PT p TokenLOWER }
-    "IN"                            {\p _ -> PT p TokenIN }
-    "WHERE"                         {\p _ -> PT p TokenWHERE }
-    "TRANSPOSE"                     {\p _ -> PT p TokenTRANSPOSE}
-    "ZIP"                           {\p _ -> PT p  TokenZIP}
-    "STACK"                         {\p _ -> PT p  TokenSTACK}
-    "NOSORT"                        {\p _ -> PT p TokenNOSORT }
+    "PRINT"|"print"                 {\p _ -> PT p TokenPRINT }
+    "FILTER"|"filter"               {\p _ -> PT p TokenFILTER }
+    "DISTINCT"|"distinct"           {\p _ -> PT p TokenDISTINCT }
+    "GET"|"get"                     {\p _ -> PT p TokenGET }
+    "LIMIT"|"limit"                 {\p _ -> PT p TokenLIMIT }
+    "NOTRIM"|"notrim"               {\p _ -> PT p TokenNOTRIM }
+    "LEFT_MERGE"|"left_merge"       {\p _ -> PT p TokenLEFTMERGE }
+    "RIGHT_MERGE"|"right_merge"     {\p _ -> PT p TokenRIGHTMERGE }
+    "ON"|"on"                       {\p _ -> PT p TokenON }
+    "UNION"|"union"                 {\p _ -> PT p TokenUNION }
+    "REPLACE"|"replace"             {\p _ -> PT p TokenREPLACE }
+    "WITH"|"with"                   {\p _ -> PT p TokenWITH }
+    "CONCAT"|"concat"               {\p _ -> PT p TokenCONCAT }
+    "COUNT"|"count"                 {\p _ -> PT p TokenCOUNT }
+    "WRITE"|"write"                 {\p _ -> PT p TokenWRITE } 
+    "TO"|"to"                       {\p _ -> PT p TokenTO } 
+    "IMPORT"|"import"               {\p _ -> PT p TokenIMPORT }
+    "SORT"|"sort"                   {\p _ -> PT p TokenSORT }
+    "ASC"|"asc"                     {\p _ -> PT p TokenASC }
+    "DESC"|"desc"                   {\p _ -> PT p TokenDESC }
+    "COL"|"col"                     {\p _ -> PT p TokenCOL }
+    "ROW"|"row"                     {\p _ -> PT p TokenROW }
+    "FROM"|"from"                   {\p _ -> PT p TokenFROM }
+    "MAP"|"map"                     {\p _ -> PT p TokenMAP }
+    "UPPER"|"upper"                 {\p _ -> PT p TokenUPPER }
+    "LOWER"|"lower"                 {\p _ -> PT p TokenLOWER }
+    "IN"|"in"                       {\p _ -> PT p TokenIN }
+    "WHERE"|"where"                 {\p _ -> PT p TokenWHERE }
+    "TRANSPOSE"|"transpose"         {\p _ -> PT p TokenTRANSPOSE}
+    "ZIP"|"zip"                     {\p _ -> PT p  TokenZIP}
+    "STACK"|"stack"                 {\p _ -> PT p  TokenSTACK}
+    "NOSORT"|"nosort"               {\p _ -> PT p TokenNOSORT }
     @csvfilepath                    {\p s -> PT p (TokenCSV (init (tail s))) }
     @literal                        {\p s -> 
       if s == "$" 
