@@ -1,5 +1,5 @@
 module Eval (eval) where
-
+import Debug.Trace (traceM)
 import CQLParser (ColRowData(..), FilterQuery(..), MergeType(..), Operand(..), Operator(..), Query(..), SortOrder(..), Stmt(..), Trim(..), VarName, Expr(..), ColRow(..))
 import Control.Monad.State
 import Data.List (nub, sort, sortBy, transpose)
@@ -8,6 +8,7 @@ import Data.Maybe (fromJust)
 import Data.Ord (Down (Down), comparing)
 import State (addToContext)
 import Types (CSVData, CSVRow, CSVState)
+import Data.Matrix (Matrix, fromLists, toLists, (<->))
 import Util (combineRows, convertToCSV, insertAfter, readCSV, replaceWith, trimString, writeToCSV)
 import Data.Char (toUpper, toLower)
 
@@ -87,6 +88,7 @@ eval (Print var sortOrder trim) = do
        in convertToCSV trimmedData
 
     sortData :: CSVData -> SortOrder -> CSVData
+    sortData result NO   = result
     sortData result ASC = sort result
     sortData result DESC = sortBy (comparing Down) result
 
@@ -200,6 +202,29 @@ queryHandler var query = do
           GreaterThan        -> operand1 > operand2
           LessThanOrEqual    -> operand1 <= operand2
           GreaterThanOrEqual -> operand1 >= operand2
+
+
+    Zip vars -> do
+      let tables = map (fromJust . (`Map.lookup` ctx)) vars  -- [[[CSVRow]]]
+      let result = case tables of
+            [tableA, tableB] -> zipWith (++) tableA tableB
+            _                -> error "Zip expects exactly two input tables"
+      addToContext var result
+
+    -- Stack vars -> do
+    --   let tables = map (fromJust . (`Map.lookup` ctx)) vars  -- [[[CSVRow]]]
+      
+    --   let result = case tables of
+    --         [tableA, tableB] -> tableA ++ tableB
+    --         _                -> error "Stack expects exactly two input tables"
+        
+    --   addToContext var result
+
+    Stack vars -> do
+      let [tableA, tableB] = map (fromJust . (`Map.lookup` ctx)) vars
+      let result = tableA ++ tableB
+          cleanedResult = filter (not . all null) result
+      addToContext var cleanedResult
 
     Cross vars -> do
       let results = map (fromJust . (`Map.lookup` ctx)) vars

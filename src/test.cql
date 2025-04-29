@@ -1,9 +1,10 @@
-IMPORT "src/output.csv" AS students;
+IMPORT "src/test1.csv" AS a;
+IMPORT "src/test2.csv" AS b;
 
-SET adults AS (
-    FILTER students WHERE students.COL(2) >= 18
+SET c AS (
+    STACK(a, b)
 );
 
-PRINT adults;
 
-WRITE adults TO "src/adults.csv";
+PRINT c NOSORT;
+

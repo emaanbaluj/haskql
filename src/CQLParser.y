@@ -55,6 +55,8 @@ import Debug.Trace (trace)
     "}" { PT _ TokenRBRACE }
     "CONCAT" { PT _ TokenCONCAT }
     "COUNT" { PT _ TokenCOUNT }
+    "ZIP" { PT _ TokenZIP }
+    "STACK" { PT _ TokenSTACK }
     "WRITE" { PT _ TokenWRITE }
     "TO" { PT _ TokenTO }
     "FROM" { PT _ TokenFROM }
@@ -78,6 +80,7 @@ import Debug.Trace (trace)
     "IN"    { PT _ TokenIN }
     "TRANSPOSE" { PT _ TokenTRANSPOSE }
     "WHERE" { PT _ TokenWHERE }
+    "NOSORT" { PT _ TokenNOSORT }
    
 
 %%
@@ -108,6 +111,8 @@ queries :: { [Query] }
 query :: { Query }
     : "GET" colrows { Get $2 }
     | "CROSS" "(" vars ")" { Cross $3 }
+    | "ZIP" "(" vars ")" { Zip $3 }
+    | "STACK" "(" vars ")" { Stack $3 }
     | "FILTER" filterquery { Filter $2 }
     | "FILTER" var "WHERE" wherecondition { Filter $4 }
     | "DISTINCT" var { Distinct $2 }
@@ -150,6 +155,7 @@ sort :: { SortOrder }
     | "SORT" "ASC" { ASC }
     | "SORT" "(" "DESC" ")" { DESC }
     | "SORT" "DESC" { DESC }
+    | "NOSORT"       { NO }
     | { ASC }
 
 trim :: { Trim }
@@ -221,6 +227,8 @@ data Stmt =
 data Query = 
     Get [ColRowData]
     | Cross [VarName]
+    | Zip [VarName]
+    | Stack [VarName]
     | Filter FilterQuery
     | Merge MergeType VarName VarName Int
     | Concat ColRowData [Literal]
@@ -243,7 +251,7 @@ data MergeType = LeftMerge | RightMerge deriving (Show, Eq)
 data Trim = TrimTrue | TrimFalse deriving (Show, Eq)
 
 data ColRow = COL | ROW deriving (Eq, Show)
-data SortOrder = ASC | DESC deriving (Eq, Show)
+data SortOrder = ASC | DESC | NO deriving (Eq, Show)
 
 data Operator = Equal | NotEqual | LessThan | GreaterThan | LessThanOrEqual | GreaterThanOrEqual deriving (Eq, Show)
 data FilterQuery = FilterColRow ColRowData Operator ColRowData | FilterColRowOperand ColRowData Operator Operand | FilterColRowIsNull ColRowData | FilterColRowIsNotNull ColRowData deriving (Show, Eq) 
