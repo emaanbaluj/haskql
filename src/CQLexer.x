@@ -72,6 +72,9 @@ tokens :-
     "IN"                            {\p _ -> PT p TokenIN }
     "WHERE"                         {\p _ -> PT p TokenWHERE }
     "TRANSPOSE"                     {\p _ -> PT p TokenTRANSPOSE}
+    "ZIP"                           {\p _ -> PT p  TokenZIP}
+    "STACK"                         {\p _ -> PT p  TokenSTACK}
+    "NOSORT"                        {\p _ -> PT p TokenNOSORT }
     @csvfilepath                    {\p s -> PT p (TokenCSV (init (tail s))) }
     @literal                        {\p s -> 
       if s == "$" 
@@ -142,6 +145,9 @@ data Token =
   | TokenIN
   | TokenTRANSPOSE
   | TokenWHERE
+  | TokenZIP
+  | TokenSTACK
+  | TokenNOSORT
   | TokenCSV String 
   | TokenLITERAL String
   | TokenVAR String

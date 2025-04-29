@@ -1,12 +1,10 @@
 module Eval (eval) where
-
 import CQLParser (ColRow (..), ColRowData (..), Expr (..), FilterQuery (..), MergeType (..), Operand (..), Operator (..), Query (..), SortOrder (..), Stmt (..), Trim (..), VarName, ColData (..))
 import Control.Monad.State
   ( MonadIO (liftIO),
     MonadState (get),
     when,
   )
-import Data.Char (toLower, toUpper)
 import Data.List (nub, sort, sortBy, transpose)
 import qualified Data.Map as Map
 import Data.Maybe (fromJust)
@@ -14,6 +12,7 @@ import Data.Ord (Down (Down), comparing)
 import State (addToContext)
 import Types (CSVData, CSVRow, CSVState)
 import Util (combineRows, convertToCSV, getColFromTable, getRowFromTable, insertAfter, readCSV, replaceWith, setColInTable, setRowInTable, trimString, writeToCSV)
+import Data.Char (toUpper, toLower)
 
 eval :: Stmt -> CSVState ()
 eval (Access2D var firstAxis firstIdx secondAxis secondIdx) = do
@@ -76,6 +75,7 @@ eval (Print var sortOrder trim) = do
        in convertToCSV trimmedData
 
     sortData :: CSVData -> SortOrder -> CSVData
+    sortData result NO   = result
     sortData result ASC = sort result
     sortData result DESC = sortBy (comparing Down) result
 
@@ -163,6 +163,17 @@ queryHandler var query = do
           GreaterThan -> operand1 > operand2
           LessThanOrEqual -> operand1 <= operand2
           GreaterThanOrEqual -> operand1 >= operand2
+
+
+    Zip vars -> do
+      let tables = map (fromJust . (`Map.lookup` ctx)) vars
+      let emptyTable = replicate (maximum (map length tables)) []
+      let result = foldl (zipWith (++)) emptyTable tables
+      addToContext var result
+    Stack vars -> do
+      let tables = map (fromJust . (`Map.lookup` ctx)) vars
+      let result = concat tables
+      addToContext var result
     Cross vars -> do
       let results = map (fromJust . (`Map.lookup` ctx)) vars
       let result = foldl (\acc row -> [r1 ++ r2 | r1 <- acc, r2 <- row]) [[]] results

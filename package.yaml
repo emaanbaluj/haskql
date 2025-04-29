@@ -21,6 +21,7 @@ dependencies:
   - array
   - containers
   - mtl
+  - matrix
 ghc-options:
   - -Wall
   - -Wcompat
@@ -49,6 +50,7 @@ executables:
       - -with-rtsopts=-N
     dependencies:
       - plc
+      - matrix
 
 tests:
   plc-test:
@@ -60,3 +62,6 @@ tests:
       - -with-rtsopts=-N
     dependencies:
       - plc
+      - matrix
+
+
