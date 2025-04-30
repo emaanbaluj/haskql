@@ -6,9 +6,9 @@
   "author": {
     "name": "CQL 22"
   },
-  "version": "0.0.4",
+  "version": "0.0.5",
   "engines": {
-    "vscode": "^1.99.0"
+    "vscode": ">=1.50.0"
   },
   "categories": [
     "Programming Languages"
