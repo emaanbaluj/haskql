@@ -8,12 +8,32 @@ import TypeChecker (typecheck)
 
 main :: IO ()
 main = do
-  [filename] <- getArgs
+  args <- getArgs
+
+  case args of
+    [filename] -> runCql filename
+    [filename, "--typecheck=false"] -> runCql filename
+    [filename, "--typecheck=true"] -> runCqlWithTypeCheck filename
+    [filename, "-t"] -> runCqlWithTypeCheck filename
+    _ -> putStrLn "Usage: stack run -- <filename> [--typecheck=true|false] | [-t]"
+  
+  return ()
+
+runCql :: FilePath -> IO ()
+runCql filename = do
   contents <- readFile filename
   let tokens = alexScanTokens contents
   let parsed = parseCql tokens
-  -- Disable this comment to run the typechecker.
-  -- We disable it because it logs warnings to stdout and could cause issues with the test harness.
-  -- (_, _) <- runStateT (mapM_ typecheck parsed) Map.empty
+
+  (_, _) <- runStateT (mapM_ eval parsed) Map.empty
+  return ()
+
+runCqlWithTypeCheck :: FilePath -> IO ()
+runCqlWithTypeCheck filename = do
+  contents <- readFile filename
+  let tokens = alexScanTokens contents
+  let parsed = parseCql tokens
+
+  (_, _) <- runStateT (mapM_ typecheck parsed) Map.empty
   (_, _) <- runStateT (mapM_ eval parsed) Map.empty
   return ()
