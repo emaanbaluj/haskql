@@ -177,6 +177,11 @@ queryHandler var query = do
       let results = map (fromJust . (`Map.lookup` ctx)) vars
       let result = foldl (\acc row -> [r1 ++ r2 | r1 <- acc, r2 <- row]) [[]] results
       addToContext var result
+    Complement var1 var2 -> do
+      let table1 = fromJust (Map.lookup var1 ctx)
+      let table2 = fromJust (Map.lookup var2 ctx)
+      let result = filter (`notElem` table2) table1
+      addToContext var result
     Get colRows -> do
       let rows =
             transpose $

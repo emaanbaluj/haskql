@@ -102,6 +102,7 @@ query :: { Query }
     | "LIMIT" num "FROM" var { Limit (read $2) $4 }
     | "CONCAT" colrow "WITH" "(" literals ")" { Concat $2 $5 }
     | "REPLACE" colrow "WITH" colrow { Replace $2 $4 }
+    | var "-" var { Complement $1 $3 }
     | mergetype "(" var "," var ")" "ON" "COL" num { Merge $1 $3 $5 (read $9) }
 
 mergetype :: { MergeType }
@@ -198,6 +199,7 @@ data Query =
     | Distinct VarName
     | Limit Int VarName
     | Replace ColRowData ColRowData
+    | Complement VarName VarName
     deriving (Show, Eq)
 
 data Expr
