@@ -1,6 +1,6 @@
 module Eval (eval) where
 
-import CQLParser (ColData (..), ColRow (..), ColRowData (..), Expr (..), FilterQuery (..), MergeType (..), Operand (..), Operator (..), Query (..), SortOrder (..), Stmt (..), Trim (..), VarName)
+import CQLParser (ColData (..), ColRow (..), ColRowData (..), Expr (..), FilterQuery (..), Literal, MergeType (..), Operand (..), Operator (..), Query (..), SortOrder (..), Stmt (..), Trim (..), VarName)
 import Control.Monad.State
   ( MonadIO (liftIO),
     MonadState (get),
@@ -85,6 +85,20 @@ eval (Print var sortOrder trim) = do
     trimData result TrimFalse = result
 eval (Set var queries) = do
   mapM_ (queryHandler var) queries
+eval (Insert colrow literals var newVar) = do
+  ctx <- get
+  case Map.lookup var ctx of
+    Nothing -> liftIO $ putStrLn ("<error> no such table: " ++ var)
+    Just table -> do
+      let newTable = insertRowOrCol colrow table literals
+      addToContext newVar newTable
+
+insertRowOrCol :: ColRow -> CSVData -> [Literal] -> CSVData
+insertRowOrCol COL table literals =
+  let tTable = transpose table
+      newTable = tTable ++ [literals]
+   in transpose newTable
+insertRowOrCol ROW table literals = table ++ [literals]
 
 apply :: Expr -> String -> String
 apply (AddN n) s = case reads s of

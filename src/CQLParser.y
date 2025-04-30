@@ -69,7 +69,7 @@ import Debug.Trace (trace)
     "TRANSPOSE" { PT _ TokenTRANSPOSE }
     "WHERE" { PT _ TokenWHERE }
     "NOSORT" { PT _ TokenNOSORT }
-   
+    "INSERT" { PT _ TokenINSERT }
 
 %%
 stmts :: { [ Stmt ] }
@@ -85,6 +85,8 @@ stmt :: { Stmt }
     | "PRINT" var "." rowOrCol "(" num ")" "." rowOrCol "(" num ")" sort trim ";" { Access2D $2 $4 (read $6) $9 (read $11) }
     | "PRINT" var sort trim ";" { Print $2 $3 $4 }
     | "MAP" "(" expr ")" "IN" var "AS" var ";" { Map $3 $6 $8 }
+    | "INSERT" "ROW" "(" literals ")" "IN" var "AS" var ";" { Insert ROW $4 $7 $9 }
+    | "INSERT" "COL" "(" literals ")" "IN" var "AS" var ";" { Insert COL $4 $7 $9 }
     | "TRANSPOSE" var "AS" var ";" { Transpose $2 $4 }
 
 queries :: { [Query] }
@@ -184,6 +186,7 @@ data Stmt =
     | Transpose VarName VarName
     | Set VarName [Query]
     | Map Expr VarName VarName 
+    | Insert ColRow [Literal] VarName VarName
     | Access2D VarName ColRow Int ColRow Int
     deriving (Show, Eq)
 

@@ -54,6 +54,7 @@ $digit = [0-9]
 @zip = [zZ][iI][pP]
 @stack = [sS][tT][aA][cC][kK]
 @nosort = [nN][oO][sS][oO][rR][tT]
+@insert = [iI][nN][sS][eE][rR][tT]
 
 tokens :-
     $white+                        ;
@@ -77,6 +78,7 @@ tokens :-
     "-"                            {\p _ -> PT p TokenMINUS }
     "*"                            {\p _ -> PT p TokenMULT }
     "/"                            {\p _ -> PT p TokenDIV }
+    @insert                        {\p _ -> PT p TokenINSERT }
     @as                            {\p _ -> PT p TokenAS }
     @set                           {\p _ -> PT p TokenSET }
     @cross                         {\p _ -> PT p TokenCROSS }
@@ -146,6 +148,7 @@ data Token =
   | TokenNEQ
   | TokenLE
   | TokenSPEECH
+  | TokenINSERT
   | TokenGE
   | TokenLT
   | TokenGT
