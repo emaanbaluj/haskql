@@ -15,6 +15,7 @@ module Util
     setRowInTable,
     warning,
     allSame,
+    safeAccess,
   )
 where
 
@@ -47,6 +48,7 @@ statementPrinter stmt = case stmt of
     putStrLn $ "Transpose " ++ var1 ++ " " ++ var2
   PrintColRow colrow1 sort trim -> do
     putStrLn $ "PrintColRow " ++ show colrow1 ++ " " ++ show sort ++ " " ++ show trim
+  _ -> putStrLn "Unknown statement"
 
 readCSV :: String -> IO CSVData
 readCSV filepath = do
@@ -95,3 +97,8 @@ warning msg = trace ("\n```\nWARNING: " ++ msg ++ "\n```\n")
 allSame :: [Int] -> Bool
 allSame [] = True
 allSame (x : xs) = all (== x) xs
+
+safeAccess :: [a] -> Int -> a
+safeAccess xs n
+  | n < 0 || n >= length xs = error $ "\nLikely Cause: Out of bounds error, Trying to access index " ++ show n ++ " in list of length " ++ show (length xs) ++ "\n" ++ "Other causes: Check for trailing \\n in the CSV file" ++ "\n"
+  | otherwise = xs !! n

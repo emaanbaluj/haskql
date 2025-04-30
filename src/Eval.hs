@@ -15,7 +15,7 @@ import Data.Maybe (fromJust)
 import Data.Ord (Down (Down), comparing)
 import State (addToContext)
 import Types (CSVData, CSVRow, CSVState)
-import Util (combineRows, convertToCSV, getColFromTable, getRowFromTable, insertAfter, readCSV, replaceWith, setColInTable, setRowInTable, trimString, writeToCSV)
+import Util (combineRows, convertToCSV, getColFromTable, getRowFromTable, insertAfter, readCSV, replaceWith, setColInTable, setRowInTable, trimString, writeToCSV, safeAccess)
 
 eval :: Stmt -> CSVState ()
 eval (Access2D var firstAxis firstIdx secondAxis secondIdx) = do
@@ -32,7 +32,7 @@ eval (PrintColRow (ColRowData var COL colNum) _ trim) = do
   case Map.lookup var ctx of
     Nothing -> liftIO $ putStrLn ("<error> no such table: " ++ var)
     Just table -> do
-      columnTry <- liftIO $ try (evaluate (force (map (!! (colNum - 1)) table))) :: CSVState (Either SomeException [String])
+      columnTry <- liftIO $ try (evaluate (force (map (`safeAccess` (colNum - 1)) table))) :: CSVState (Either SomeException [String])
       column <- case columnTry of
         Left _ -> liftIO $ error (var ++ ".COL(" ++ show colNum ++ ") is out of bounds for table " ++ var)
         Right c -> return c
@@ -46,7 +46,7 @@ eval (PrintColRow (ColRowData var ROW rowNum) _ trim) = do
   case Map.lookup var ctx of
     Nothing -> liftIO $ putStrLn ("<error> no such table: " ++ var)
     Just table -> do
-      rowTry <- liftIO $ try (evaluate (force (table !! (rowNum - 1)))) :: CSVState (Either SomeException [String])
+      rowTry <- liftIO $ try (evaluate (force (table `safeAccess` (rowNum - 1)))) :: CSVState (Either SomeException [String])
       row <- case rowTry of
         Left _ -> liftIO $ error (var ++ ".ROW(" ++ show rowNum ++ ") is out of bounds for table " ++ var)
         Right r -> return r
@@ -125,8 +125,8 @@ apply Not "False" = "True"
 apply Not s = s
 
 access2D :: CSVData -> ColRow -> Int -> ColRow -> Int -> String
-access2D table COL colIdx ROW rowIdx = (transpose table !! (colIdx - 1)) !! (rowIdx - 1)
-access2D table ROW rowIdx COL colIdx = (table !! (rowIdx - 1)) !! (colIdx - 1)
+access2D table COL colIdx ROW rowIdx = (transpose table `safeAccess` (colIdx - 1)) `safeAccess` (rowIdx - 1)
+access2D table ROW rowIdx COL colIdx = (table `safeAccess` (rowIdx - 1)) `safeAccess` (colIdx - 1)
 access2D _ _ _ _ _ = ""
 
 queryHandler :: VarName -> Query -> CSVState ()
@@ -149,7 +149,7 @@ queryHandler var query = do
       let table1 = fromJust (Map.lookup var1 ctx)
       let table2 = fromJust (Map.lookup var2 ctx)
       let rowPairs = combineRows table1 table2
-      filteredRowPairs <- liftIO $ try (evaluate $ force $ filter (\(row1, row2) -> row1 !! (colNum - 1) == row2 !! (colNum - 1)) rowPairs) :: CSVState (Either SomeException [(CSVRow, CSVRow)])
+      filteredRowPairs <- liftIO $ try (evaluate $ force $ filter (\(row1, row2) -> row1 `safeAccess` (colNum - 1) == row2 `safeAccess` (colNum - 1)) rowPairs) :: CSVState (Either SomeException [(CSVRow, CSVRow)])
       case filteredRowPairs of
         Left _ -> liftIO $ error ("Error accessing " ++ var1 ++ " or " ++ var2 ++ " in merge operation. Check index " ++ show colNum ++ " is valid for both tables.")
         Right pairs -> do
@@ -169,37 +169,37 @@ queryHandler var query = do
           let targetTableData = fromJust (Map.lookup targetTable ctx)
           let inputTableData = fromJust (Map.lookup table ctx)
 
-          let targetColumns = map (!! (colNum - 1)) targetTableData
+          let targetColumns = map (`safeAccess` (colNum - 1)) targetTableData
 
-          return $ filter (\row -> row !! (inputColNum - 1) `notElem` targetColumns) inputTableData
+          return $ filter (\row -> row `safeAccess` (inputColNum - 1) `notElem` targetColumns) inputTableData
         filterResult (FilterColRowIsIn (ColData inputColNum) (ColRowData targetTable _ colNum)) = do
           let targetTableData = fromJust (Map.lookup targetTable ctx)
           let inputTableData = fromJust (Map.lookup table ctx)
 
-          let targetColumns = map (!! (colNum - 1)) targetTableData
+          let targetColumns = map (`safeAccess` (colNum - 1)) targetTableData
 
-          return $ filter (\row -> row !! (inputColNum - 1) `elem` targetColumns) inputTableData
+          return $ filter (\row -> row `safeAccess` (inputColNum - 1) `elem` targetColumns) inputTableData
         filterResult (FilterColRowIsNotNull (ColData colNum)) = do
           let tableData = fromJust (Map.lookup table ctx)
-          return $ filter (\row -> row !! (colNum - 1) /= "") tableData
+          return $ filter (\row -> row `safeAccess` (colNum - 1) /= "") tableData
         filterResult (FilterColRowIsNull (ColData colNum)) = do
           let tableData = fromJust (Map.lookup table ctx)
-          return $ filter (\row -> row !! (colNum - 1) == "") tableData
+          return $ filter (\row -> row `safeAccess` (colNum - 1) == "") tableData
         filterResult (FilterColRow (ColData colNum) operator (ColData colNum2)) = do
           let tableData = fromJust (Map.lookup table ctx)
-          return $ filter (\row -> filterFunction operator (row !! (colNum - 1)) (row !! (colNum2 - 1))) tableData
+          return $ filter (\row -> filterFunction operator (row `safeAccess` (colNum - 1)) (row `safeAccess` (colNum2 - 1))) tableData
         filterResult (FilterColRowOperand (ColData colNum) operator operand) = do
           let tableData = fromJust (Map.lookup table ctx)
           return $ case operand of
             OperandLiteral literal ->
-              filter (\row -> filterFunction operator (row !! (colNum - 1)) literal) tableData
+              filter (\row -> filterFunction operator (row `safeAccess` (colNum - 1)) literal) tableData
             OperandNum num ->
-              filter (\row -> filterFunction operator (read (row !! (colNum - 1)) :: Double) (fromIntegral num)) tableData
+              filter (\row -> filterFunction operator (read (row `safeAccess` (colNum - 1)) :: Double) (fromIntegral num)) tableData
             OperandFloat float ->
-              filter (\row -> filterFunction operator (read (row !! (colNum - 1)) :: Double) (realToFrac float)) tableData
+              filter (\row -> filterFunction operator (read (row `safeAccess` (colNum - 1)) :: Double) (realToFrac float)) tableData
             OperandArity varName ->
               let targetTable = fromJust (Map.lookup varName ctx)
-               in filter (\row -> filterFunction operator (read (row !! (colNum - 1)) :: Double) (fromIntegral (length $ transpose targetTable))) tableData
+               in filter (\row -> filterFunction operator (read (row `safeAccess` (colNum - 1)) :: Double) (fromIntegral (length $ transpose targetTable))) tableData
 
         filterFunction :: (Ord a) => Operator -> a -> a -> Bool
         filterFunction op operand1 operand2 = case op of
@@ -232,26 +232,27 @@ queryHandler var query = do
       let result = filter (`notElem` table2) table1
       addToContext var result
     Get colRows -> do
-      let rows =
-            transpose $
-              map
-                ( \(ColRowData table _ colNum) ->
-                    let tableData = Map.lookup table ctx
-                     in case tableData of
-                          Nothing -> replicate 100 ""
-                          Just result -> map (\dat -> dat !! (colNum - 1)) result
-                )
-                colRows
-      let nonEmptyRows =
-            foldr
-              (\col acc -> if all (== "") col then acc else col : acc)
-              []
-              rows
-      addToContext var nonEmptyRows
+      tryRows <- liftIO $ try $ evaluate $ force $ transpose $ map rowsFunction colRows :: CSVState (Either SomeException [[String]]) 
+      case tryRows of
+        Left _ -> liftIO $ error ("ERROR WITH GET on " ++ var ++ ". Out of bounds")
+        Right rows -> do
+          let nonEmptyRows =
+                foldr
+                  (\col acc -> if all (== "") col then acc else col : acc)
+                  []
+                  rows
+          addToContext var nonEmptyRows
+      where
+        rowsFunction :: ColRowData -> [String]
+        rowsFunction (ColRowData table _ colNum) =
+          let tableData = Map.lookup table ctx
+           in case tableData of
+                Nothing -> replicate 100 ""
+                Just result -> map (\dat -> dat `safeAccess` (colNum - 1)) result
     Concat (ColRowData table _ colNum) literals -> do
       let tableData = fromJust (Map.lookup table ctx)
       let updatedData = map (\row -> insertAfter row colNum literals) tableData
-      let replacedData = map (\row -> let colValue = row !! (colNum - 1) in replaceWith "$" colValue row) updatedData
+      let replacedData = map (\row -> let colValue = row `safeAccess` (colNum - 1) in replaceWith "$" colValue row) updatedData
       addToContext var replacedData
     Replace target source -> do
       let targetTable = case target of (ColRowData table _ _) -> table
