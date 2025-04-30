@@ -96,9 +96,9 @@ eval (Insert colrow literals var newVar) = do
 insertRowOrCol :: ColRow -> CSVData -> [Literal] -> CSVData
 insertRowOrCol COL table literals =
   let tTable = transpose table
-      newTable = tTable ++ [literals]
+      newTable = tTable ++ [foldl (\acc lit -> if lit == "NULL" then acc ++ [""] else acc ++ [lit]) [] literals]
    in transpose newTable
-insertRowOrCol ROW table literals = table ++ [literals]
+insertRowOrCol ROW table literals = table ++ [foldl (\acc lit -> if lit == "NULL" then acc ++ [""] else acc ++ [lit]) [] literals]
 
 apply :: Expr -> String -> String
 apply (AddN n) s = case reads s of
