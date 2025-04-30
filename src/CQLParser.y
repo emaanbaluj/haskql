@@ -71,6 +71,7 @@ import Debug.Trace (trace)
     "NOSORT" { PT _ TokenNOSORT }
     "INSERT" { PT _ TokenINSERT }
     "REVERSE" { PT _ TokenREVERSE }
+    "ARITY" { PT _ TokenARITY }
 %%
 stmts :: { [ Stmt ] }
     : stmt stmts { $1 : $2 }
@@ -126,6 +127,7 @@ operand :: { Operand }
     : num { OperandNum (read $1) }
     | float { OperandFloat (read $1) }
     | literal { OperandLiteral $1 }
+    | "ARITY" var { OperandArity $2 }
 
 operator :: { Operator }
     : "==" { Equal }
@@ -225,7 +227,7 @@ data SortOrder = ASC | DESC | NO deriving (Eq, Show)
 data Operator = Equal | NotEqual | LessThan | GreaterThan | LessThanOrEqual | GreaterThanOrEqual deriving (Eq, Show)
 data FilterQuery = FilterColRow ColData Operator ColData | FilterColRowOperand ColData Operator Operand | FilterColRowIsNull ColData | FilterColRowIsNotNull ColData deriving (Show, Eq) 
 
-data Operand = OperandNum Int | OperandLiteral String | OperandFloat Float deriving (Eq, Show)
+data Operand = OperandNum Int | OperandLiteral String | OperandFloat Float | OperandArity VarName deriving (Eq, Show)
 data ColRowData = 
     ColRowData VarName ColRow Int
     deriving (Show, Eq)

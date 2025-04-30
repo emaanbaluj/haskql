@@ -169,6 +169,9 @@ queryHandler var query = do
               filter (\row -> filterFunction operator (read (row !! (colNum - 1)) :: Double) (fromIntegral num)) tableData
             OperandFloat float ->
               filter (\row -> filterFunction operator (read (row !! (colNum - 1)) :: Double) (realToFrac float)) tableData
+            OperandArity varName ->
+              let targetTable = fromJust (Map.lookup varName ctx)
+               in filter (\row -> filterFunction operator (read (row !! (colNum - 1)) :: Double) (fromIntegral (length $ transpose targetTable))) tableData
 
         filterFunction :: (Ord a) => Operator -> a -> a -> Bool
         filterFunction op operand1 operand2 = case op of

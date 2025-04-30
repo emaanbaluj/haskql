@@ -56,6 +56,7 @@ $digit = [0-9]
 @nosort = [nN][oO][sS][oO][rR][tT]
 @insert = [iI][nN][sS][eE][rR][tT]
 @reverse = [rR][eE][vV][eE][rR][sS][eE]
+@arity = [aA][rR][iI][tT][yY]
 
 tokens :-
     $white+                        ;
@@ -119,6 +120,7 @@ tokens :-
     @stack                         {\p _ -> PT p TokenSTACK}
     @nosort                        {\p _ -> PT p TokenNOSORT }
     @reverse                       {\p _ -> PT p TokenREVERSE}
+    @arity                         {\p _ -> PT p TokenARITY}
     @csvfilepath                   {\p s -> PT p (TokenCSV (init (tail s))) }
     @literal                       {\p s -> 
       if s == "$" 
@@ -194,6 +196,7 @@ data Token =
   | TokenSTACK
   | TokenNOSORT
   | TokenREVERSE
+  | TokenARITY
   | TokenCSV String 
   | TokenLITERAL String
   | TokenVAR String
