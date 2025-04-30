@@ -178,15 +178,22 @@ queryHandler var query = do
       let result = foldl (\acc row -> [r1 ++ r2 | r1 <- acc, r2 <- row]) [[]] results
       addToContext var result
     Get colRows -> do
-      let columns =
+      let rows =
             transpose $
               map
                 ( \(ColRowData table _ colNum) ->
-                    let tableData = fromJust (Map.lookup table ctx)
-                     in map (!! (colNum - 1)) tableData
+                    let tableData = Map.lookup table ctx
+                     in case tableData of
+                          Nothing -> replicate 100 ""
+                          Just result -> map (\dat -> dat !! (colNum - 1)) result
                 )
                 colRows
-      addToContext var columns
+      let nonEmptyRows =
+            foldr
+              (\col acc -> if all (== "") col then acc else col : acc)
+              []
+              rows
+      addToContext var nonEmptyRows
     Concat (ColRowData table _ colNum) literals -> do
       let tableData = fromJust (Map.lookup table ctx)
       let updatedData = map (\row -> insertAfter row colNum literals) tableData

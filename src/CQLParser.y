@@ -149,6 +149,7 @@ colrows :: { [ColRowData] }
 
 colrow :: { ColRowData }
     : var "." rowOrCol "(" num ")" { ColRowData $1 $3 (read $5) }
+    | "NULL" { ColRowData "NULL" COL 0 }
 
 rowOrCol :: { ColRow }
     : "COL" { COL }
