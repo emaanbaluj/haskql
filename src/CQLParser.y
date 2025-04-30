@@ -119,6 +119,8 @@ filterquery :: { FilterQuery }
     | col operator operand { FilterColRowOperand $1 $2 $3 }
     | col "IS" "NULL" { FilterColRowIsNull $1 }
     | col "IS" "NOT" "NULL" { FilterColRowIsNotNull $1 }
+    | col "IS" "NOT" "IN" colrow { FilterColRowIsNotIn $1 $5 }
+    | col "IS" "IN" colrow { FilterColRowIsIn $1 $4 }
 
 col :: { ColData }
     : "COL" "(" num ")" { ColData (read $3) }
@@ -225,7 +227,7 @@ data ColRow = COL | ROW deriving (Eq, Show)
 data SortOrder = ASC | DESC | NO deriving (Eq, Show)
 
 data Operator = Equal | NotEqual | LessThan | GreaterThan | LessThanOrEqual | GreaterThanOrEqual deriving (Eq, Show)
-data FilterQuery = FilterColRow ColData Operator ColData | FilterColRowOperand ColData Operator Operand | FilterColRowIsNull ColData | FilterColRowIsNotNull ColData deriving (Show, Eq) 
+data FilterQuery = FilterColRow ColData Operator ColData | FilterColRowOperand ColData Operator Operand | FilterColRowIsNull ColData | FilterColRowIsNotNull ColData | FilterColRowIsNotIn ColData ColRowData | FilterColRowIsIn ColData ColRowData deriving (Show, Eq) 
 
 data Operand = OperandNum Int | OperandLiteral String | OperandFloat Float | OperandArity VarName deriving (Eq, Show)
 data ColRowData = 

@@ -151,6 +151,20 @@ queryHandler var query = do
       addToContext var filteredResult
       where
         filterResult :: FilterQuery -> CSVState CSVData
+        filterResult (FilterColRowIsNotIn (ColData inputColNum) (ColRowData targetTable _ colNum)) = do
+          let targetTableData = fromJust (Map.lookup targetTable ctx)
+          let inputTableData = fromJust (Map.lookup table ctx)
+
+          let targetColumns = map (!! (colNum - 1)) targetTableData
+
+          return $ filter (\row -> row !! (inputColNum - 1) `notElem` targetColumns) inputTableData
+        filterResult (FilterColRowIsIn (ColData inputColNum) (ColRowData targetTable _ colNum)) = do
+          let targetTableData = fromJust (Map.lookup targetTable ctx)
+          let inputTableData = fromJust (Map.lookup table ctx)
+
+          let targetColumns = map (!! (colNum - 1)) targetTableData
+
+          return $ filter (\row -> row !! (inputColNum - 1) `elem` targetColumns) inputTableData
         filterResult (FilterColRowIsNotNull (ColData colNum)) = do
           let tableData = fromJust (Map.lookup table ctx)
           return $ filter (\row -> row !! (colNum - 1) /= "") tableData
