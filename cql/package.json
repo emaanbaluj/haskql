@@ -1,8 +1,12 @@
 {
-  "name": "cql",
-  "displayName": "cql",
-  "description": "",
-  "version": "0.0.1",
+  "name": "cql22",
+  "displayName": "CQL 22",
+  "description": "Syntax highlighting for .cql files",
+  "publisher": "DanielCraciun",
+  "author": {
+    "name": "CQL 22"
+  },
+  "version": "0.0.4",
   "engines": {
     "vscode": "^1.99.0"
   },

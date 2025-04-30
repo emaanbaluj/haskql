@@ -5,11 +5,11 @@
 	"patterns": [
 	  {
 		"name": "keyword.control.cql",
-		"match": "\\b(?:IMPORT|SET|WRITE|PRINT|WHERE|MAP|INSERT|TRANSPOSE|GET|CROSS|ZIP|STACK|FILTER|DISTINCT|UNION|LIMIT|CONCAT|REPLACE|REVERSE|LEFT_MERGE|RIGHT_MERGE)\\b"
+		"match": "\\b(?:IMPORT|SET|WRITE|PRINT|WHERE|MAP|INSERT|COL|ROW|TRANSPOSE|GET|CROSS|ZIP|STACK|FILTER|DISTINCT|UNION|LIMIT|CONCAT|REPLACE|REVERSE|LEFT_MERGE|RIGHT_MERGE)\\b"
 	  },
 	  {
 		"name": "keyword.operator.cql",
-		"match": "\\b(?:SORT|AS|TO|IN|WITH|ON|IS|NOT|NULL)\\b"
+		"match": "\\b(?:SORT|AS|TO|IN|WITH|ON|IS|NULL)\\b"
 	  },
 	  {
 		"name": "support.function.cql",
@@ -17,7 +17,7 @@
 	  },
 	  {
 		"name": "constant.language.boolean.cql",
-		"match": "\\b(?:NOSORT|NOTRIM)\\b"
+		"match": "\\b(?:NOSORT|NOTRIM|NOT)\\b"
 	  },
 	  {
 		"name": "constant.numeric.float.cql",
@@ -78,7 +78,7 @@
 	  },
 	  {
 		"name": "keyword.operator.comparison.cql",
-		"match": "\\|\\||&&|==|!=|<=|>=|<|>"
+		"match": "\\|\\||&&|==|!=|<=|>=|<|>|\\$"
 	  }
 	],
 	"repository": {}
