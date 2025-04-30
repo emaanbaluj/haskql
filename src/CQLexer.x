@@ -55,6 +55,7 @@ $digit = [0-9]
 @stack = [sS][tT][aA][cC][kK]
 @nosort = [nN][oO][sS][oO][rR][tT]
 @insert = [iI][nN][sS][eE][rR][tT]
+@reverse = [rR][eE][vV][eE][rR][sS][eE]
 
 tokens :-
     $white+                        ;
@@ -117,6 +118,7 @@ tokens :-
     @zip                           {\p _ -> PT p TokenZIP}
     @stack                         {\p _ -> PT p TokenSTACK}
     @nosort                        {\p _ -> PT p TokenNOSORT }
+    @reverse                       {\p _ -> PT p TokenREVERSE}
     @csvfilepath                   {\p s -> PT p (TokenCSV (init (tail s))) }
     @literal                       {\p s -> 
       if s == "$" 
@@ -191,6 +193,7 @@ data Token =
   | TokenZIP
   | TokenSTACK
   | TokenNOSORT
+  | TokenREVERSE
   | TokenCSV String 
   | TokenLITERAL String
   | TokenVAR String

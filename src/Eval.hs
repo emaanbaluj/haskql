@@ -191,6 +191,10 @@ queryHandler var query = do
       let results = map (fromJust . (`Map.lookup` ctx)) vars
       let result = foldl (\acc row -> [r1 ++ r2 | r1 <- acc, r2 <- row]) [[]] results
       addToContext var result
+    Reverse colrow reverseVar -> do
+      let table = fromJust (Map.lookup reverseVar ctx)
+      let result = reverseRowOrCol colrow table
+      addToContext var result
     Complement var1 var2 -> do
       let table1 = fromJust (Map.lookup var1 ctx)
       let table2 = fromJust (Map.lookup var2 ctx)
@@ -246,3 +250,7 @@ queryHandler var query = do
 
         addToContext targetTable updatedData
         when (targetTable /= var) $ addToContext var updatedData
+
+reverseRowOrCol :: ColRow -> CSVData -> CSVData
+reverseRowOrCol ROW table = map reverse table
+reverseRowOrCol COL table = transpose (map reverse (transpose table))
