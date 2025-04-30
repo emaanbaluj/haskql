@@ -17,6 +17,16 @@ build-type:     Simple
 extra-source-files:
     README.md
     CHANGELOG.md
+data-files:
+    src/t1.cql
+    src/t2.cql
+    src/t3.cql
+    src/t4.cql
+    src/t5.cql
+    ./A.csv
+    ./B.csv
+    ./P.csv
+    ./Q.csv
 
 source-repository head
   type: git
@@ -42,6 +52,7 @@ library
       array
     , base >=4.7 && <5
     , containers
+    , deepseq
     , matrix
     , mtl
   default-language: Haskell2010
@@ -62,6 +73,7 @@ executable plc
       array
     , base >=4.7 && <5
     , containers
+    , deepseq
     , matrix
     , mtl
     , plc
@@ -81,6 +93,7 @@ test-suite plc-test
       array
     , base >=4.7 && <5
     , containers
+    , deepseq
     , matrix
     , mtl
     , plc

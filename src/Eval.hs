@@ -1,6 +1,8 @@
 module Eval (eval) where
 
 import CQLParser (ColData (..), ColRow (..), ColRowData (..), Expr (..), FilterQuery (..), Literal, MergeType (..), Operand (..), Operator (..), Query (..), SortOrder (..), Stmt (..), Trim (..), VarName)
+import Control.DeepSeq (force)
+import Control.Exception (SomeException, evaluate, try)
 import Control.Monad.State
   ( MonadIO (liftIO),
     MonadState (get),
@@ -21,37 +23,46 @@ eval (Access2D var firstAxis firstIdx secondAxis secondIdx) = do
   case Map.lookup var ctx of
     Nothing -> liftIO $ putStrLn ("<error> no such table: " ++ var)
     Just table -> do
-      let value = access2D table firstAxis firstIdx secondAxis secondIdx
-      liftIO $ putStrLn value
+      value <- liftIO $ try (evaluate (access2D table firstAxis firstIdx secondAxis secondIdx)) :: CSVState (Either SomeException String)
+      case value of
+        Left _ -> liftIO $ error (var ++ ".COL(" ++ show firstIdx ++ ").ROW(" ++ show secondIdx ++ ") is out of bounds for table " ++ var)
+        Right v -> liftIO $ putStrLn v
 eval (PrintColRow (ColRowData var COL colNum) _ trim) = do
   ctx <- get
   case Map.lookup var ctx of
     Nothing -> liftIO $ putStrLn ("<error> no such table: " ++ var)
     Just table -> do
-      let column = map (!! (colNum - 1)) table
-          trimmed = case trim of
-            TrimTrue -> map trimString column
-            TrimFalse -> column
+      columnTry <- liftIO $ try (evaluate (force (map (!! (colNum - 1)) table))) :: CSVState (Either SomeException [String])
+      column <- case columnTry of
+        Left _ -> liftIO $ error (var ++ ".COL(" ++ show colNum ++ ") is out of bounds for table " ++ var)
+        Right c -> return c
+      trimmed <- case trim of
+        TrimTrue -> return (map trimString column)
+        TrimFalse -> return column
+
       liftIO $ putStr (unlines trimmed)
 eval (PrintColRow (ColRowData var ROW rowNum) _ trim) = do
   ctx <- get
   case Map.lookup var ctx of
     Nothing -> liftIO $ putStrLn ("<error> no such table: " ++ var)
     Just table -> do
-      let row = table !! (rowNum - 1)
-          trimmed = case trim of
+      rowTry <- liftIO $ try (evaluate (force (table !! (rowNum - 1)))) :: CSVState (Either SomeException [String])
+      row <- case rowTry of
+        Left _ -> liftIO $ error (var ++ ".ROW(" ++ show rowNum ++ ") is out of bounds for table " ++ var)
+        Right r -> return r
+      let trimmed = case trim of
             TrimTrue -> map trimString row
             TrimFalse -> row
       liftIO $ putStr (unwords trimmed)
 eval (Transpose input output) = do
   ctx <- get
   case Map.lookup input ctx of
-    Nothing -> liftIO $ putStrLn ("<error> no such table: " ++ input)
+    Nothing -> liftIO $ error ("<error> no such table: " ++ input)
     Just table -> addToContext output (transpose table)
 eval (Map expr input output) = do
   ctx <- get
   case Map.lookup input ctx of
-    Nothing -> liftIO $ putStrLn ("<error> no such table: " ++ input)
+    Nothing -> liftIO $ error ("<error> no such table: " ++ input)
     Just rows -> do
       let newRows = map (map (apply expr)) rows
       addToContext output newRows
@@ -138,10 +149,13 @@ queryHandler var query = do
       let table1 = fromJust (Map.lookup var1 ctx)
       let table2 = fromJust (Map.lookup var2 ctx)
       let rowPairs = combineRows table1 table2
-      let filteredRowPairs = filter (\(row1, row2) -> row1 !! (colNum - 1) == row2 !! (colNum - 1)) rowPairs
-      let zippedRowPairs = map (uncurry zip) filteredRowPairs
-      let mergedData = mergeRows mergeType zippedRowPairs
-      addToContext var mergedData
+      filteredRowPairs <- liftIO $ try (evaluate $ force $ filter (\(row1, row2) -> row1 !! (colNum - 1) == row2 !! (colNum - 1)) rowPairs) :: CSVState (Either SomeException [(CSVRow, CSVRow)])
+      case filteredRowPairs of
+        Left _ -> liftIO $ error ("Error accessing " ++ var1 ++ " or " ++ var2 ++ " in merge operation. Check index " ++ show colNum ++ " is valid for both tables.")
+        Right pairs -> do
+          let zippedRowPairs = map (uncurry zip) pairs
+          let mergedData = mergeRows mergeType zippedRowPairs
+          addToContext var mergedData
       where
         mergeRows :: MergeType -> [[(String, String)]] -> [CSVRow]
         mergeRows LeftMerge = map (map (\(p, q) -> if null p then q else p))

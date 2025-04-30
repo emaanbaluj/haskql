@@ -22,6 +22,7 @@ dependencies:
   - containers
   - mtl
   - matrix
+  - deepseq
 ghc-options:
   - -Wall
   - -Wcompat
@@ -64,4 +65,6 @@ tests:
       - plc
       - matrix
 
-
+data-files:
+  - src/*.cql
+  - ./*.csv
