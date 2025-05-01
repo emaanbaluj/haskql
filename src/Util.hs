@@ -92,7 +92,7 @@ setRowInTable table rowNum newRow =
   take (rowNum - 1) table ++ [newRow] ++ drop rowNum table
 
 warning :: String -> a -> a
-warning msg = trace ("\n```\nWARNING: " ++ msg ++ "\n```\n")
+warning msg = error ("\n```\nWARNING: " ++ msg ++ "\n```\n")
 
 allSame :: [Int] -> Bool
 allSame [] = True

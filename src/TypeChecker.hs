@@ -1,11 +1,10 @@
 module TypeChecker (typecheck) where
 
-import CQLParser (Expr (..), Query (..), Stmt (..), VarName)
+import CQLParser (ColRow (..), Expr (..), Query (..), Stmt (..), VarName)
 import Control.Monad.State (MonadIO (liftIO), MonadState (get), StateT, modify)
 import Data.Char (isDigit, toLower)
 import Data.Map (Map)
 import qualified Data.Map as Map
-import Debug.Trace (traceM)
 import Types (CSVData)
 import Util (allSame, readCSV, warning)
 
@@ -25,6 +24,36 @@ lookupType var = do
   maybe (warning ("Variable " ++ var ++ " not found") return (TString 0 0)) return (Map.lookup var ctx)
 
 typecheck :: Stmt -> TypeChecker ()
+typecheck (Insert ROW literals varIn varOut) = do
+  t <- lookupType varIn
+  case t of
+    TString c r -> do
+      if length literals == c then return () else warning ("Type mismatch - Insert ROW operation requires " ++ show c ++ " literals") return ()
+      modify $ Map.insert varOut (TString c (r + 1))
+    TInt c r -> do
+      if length literals == c then return () else warning ("Type mismatch - Insert ROW operation requires " ++ show c ++ " literals") return ()
+      modify $ Map.insert varOut (TInt c (r + 1))
+    TFloat c r -> do
+      if length literals == c then return () else warning ("Type mismatch - Insert ROW operation requires " ++ show c ++ " literals") return ()
+      modify $ Map.insert varOut (TFloat c (r + 1))
+    TBool c r -> do
+      if length literals == c then return () else warning ("Type mismatch - Insert ROW operation requires " ++ show c ++ " literals") return ()
+      modify $ Map.insert varOut (TBool c (r + 1))
+typecheck (Insert COL literals varIn varOut) = do
+  t <- lookupType varIn
+  case t of
+    TString c r -> do
+      if length literals == r then return () else warning ("Type mismatch - Insert COL operation requires " ++ show r ++ " literals") return ()
+      modify $ Map.insert varOut (TString (c + 1) r)
+    TInt c r -> do
+      if length literals == r then return () else warning ("Type mismatch - Insert COL operation requires " ++ show r ++ " literals") return ()
+      modify $ Map.insert varOut (TInt (c + 1) r)
+    TFloat c r -> do
+      if length literals == r then return () else warning ("Type mismatch - Insert COL operation requires " ++ show r ++ " literals") return ()
+      modify $ Map.insert varOut (TFloat (c + 1) r)
+    TBool c r -> do
+      if length literals == r then return () else warning ("Type mismatch - Insert COL operation requires " ++ show r ++ " literals") return ()
+      modify $ Map.insert varOut (TBool (c + 1) r)
 typecheck (Transpose varIn varOut) = do
   t <- lookupType varIn
   case t of
@@ -32,13 +61,10 @@ typecheck (Transpose varIn varOut) = do
     TInt c r -> modify $ Map.insert varOut (TInt r c)
     TFloat c r -> modify $ Map.insert varOut (TFloat r c)
     TBool c r -> modify $ Map.insert varOut (TBool r c)
-  result <- lookupType varOut
-  traceM $ "Transposed " ++ varIn ++ " to " ++ varOut ++ " with type " ++ show result
   return ()
 typecheck (Import filepath var) = do
   result <- liftIO $ readCSV filepath
   let csvType = typeOf var result
-  traceM $ "Imported " ++ var ++ " with type " ++ show csvType
   modify $ Map.insert var csvType
 typecheck (Map expr varIn _) = do
   t <- lookupType varIn
