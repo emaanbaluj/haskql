@@ -86,16 +86,28 @@ typecheck _ = return ()
 queryHandler :: VarName -> Query -> TypeChecker ()
 queryHandler _ query = do
   case query of
+    Stack vars -> do
+      ts <- mapM lookupType vars
+      let columns = map getColumnCounts ts
+      if allSame columns then return () else warning ("Type mismatch - Stack operation requires all variables " ++ show vars ++ " to have the same number of columns") return ()
+      if allSameDataType ts then return () else warning ("Type mismatch - Stack operation requires all variables " ++ show vars ++ " to have the same type for type safety") return ()
+      return ()
+    Zip vars -> do
+      ts <- mapM lookupType vars
+      let rows = map getRowCounts ts
+      if allSame rows then return () else warning ("Type mismatch - Zip operation requires all variables " ++ show vars ++ " to have the same number of rows") return ()
+      if allSameDataType ts then return () else warning ("Type mismatch - Zip operation requires all variables " ++ show vars ++ " to have the same type for type safety") return ()
+      return ()
     Cross vars -> do
       ts <- mapM lookupType vars
-      let columns = map getColumns ts
+      let columns = map getColumnCounts ts
       if allSame columns then return () else warning ("Type mismatch - Cross operation requires all variables " ++ show vars ++ " to have the same number of columns") return ()
-      if allSameType ts then return () else warning ("Type mismatch - Cross operation requires all variables " ++ show vars ++ " to have the same type for type safety") return ()
+      if allSameDataType ts then return () else warning ("Type mismatch - Cross operation requires all variables " ++ show vars ++ " to have the same type for type safety") return ()
       return ()
     Merge _ var1 var2 _ -> do
       t1 <- lookupType var1
       t2 <- lookupType var2
-      case (getColumns t1, getColumns t2) of
+      case (getColumnCounts t1, getColumnCounts t2) of
         (c1, c2) -> if c1 == c2 then return () else warning "Type mismatch - Merge operation requires two variables with the same number of columns" return ()
     _ -> return ()
 
@@ -140,15 +152,21 @@ isEqualLengthRows [] = True
 isEqualLengthRows (firstRow : restRows) =
   all (\row -> length row == length firstRow) restRows
 
-getColumns :: CSVType -> Int
-getColumns (TString c _) = c
-getColumns (TInt c _) = c
-getColumns (TFloat c _) = c
-getColumns (TBool c _) = c
+getColumnCounts :: CSVType -> Int
+getColumnCounts (TString c _) = c
+getColumnCounts (TInt c _) = c
+getColumnCounts (TFloat c _) = c
+getColumnCounts (TBool c _) = c
 
-allSameType :: [CSVType] -> Bool
-allSameType [] = True
-allSameType (x : xs) = all (sameTypeAs x) xs
+getRowCounts :: CSVType -> Int
+getRowCounts (TString _ r) = r
+getRowCounts (TInt _ r) = r
+getRowCounts (TFloat _ r) = r
+getRowCounts (TBool _ r) = r
+
+allSameDataType :: [CSVType] -> Bool
+allSameDataType [] = True
+allSameDataType (x : xs) = all (sameTypeAs x) xs
   where
     sameTypeAs (TString _ _) (TString _ _) = True
     sameTypeAs (TInt _ _) (TInt _ _) = True
