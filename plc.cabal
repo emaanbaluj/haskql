@@ -17,16 +17,6 @@ build-type:     Simple
 extra-source-files:
     README.md
     CHANGELOG.md
-data-files:
-    src/t1.cql
-    src/t2.cql
-    src/t3.cql
-    src/t4.cql
-    src/t5.cql
-    ./A.csv
-    ./B.csv
-    ./P.csv
-    ./Q.csv
 
 source-repository head
   type: git

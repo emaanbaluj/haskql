@@ -64,7 +64,3 @@ tests:
     dependencies:
       - plc
       - matrix
-
-data-files:
-  - src/*.cql
-  - ./*.csv
