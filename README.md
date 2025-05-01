@@ -7,4 +7,4 @@ unzip ~/haskql/stack_project.zip
 rm ~/haskql/stack_project.zip
 zip ~/stack_project.zip -r ~/haskql
 
-zip tasks.zip -r src/t1.cql src/t2.cql src/t3.cql src/t4.cql src/t5.cql
+zip tasks.zip -r t1.cql t2.cql t3.cql t4.cql t5.cql
