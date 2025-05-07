@@ -7,12 +7,19 @@ import Data.Map (Map)
 import qualified Data.Map as Map
 import Types (CSVData)
 import Util (allSame, readCSV, warning)
+import Control.DeepSeq (NFData (rnf))
 
 type ColumnCount = Int
 
 type RowCount = Int
 
 data CSVType = TString ColumnCount RowCount | TInt ColumnCount RowCount | TFloat ColumnCount RowCount | TBool ColumnCount RowCount deriving (Show, Eq)
+
+instance NFData CSVType where
+  rnf (TString c r) = c `seq` r `seq` ()
+  rnf (TInt c r) = c `seq` r `seq` ()
+  rnf (TFloat c r) = c `seq` r `seq` ()
+  rnf (TBool c r) = c `seq` r `seq` ()
 
 type CSVTypeMap = Map VarName CSVType
 

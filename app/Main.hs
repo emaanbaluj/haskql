@@ -5,6 +5,7 @@ import qualified Data.Map as Map
 import Eval (eval)
 import System.Environment (getArgs)
 import TypeChecker (typecheck)
+import Control.DeepSeq (deepseq)
 
 main :: IO ()
 main = do
@@ -35,6 +36,7 @@ runCqlWithTypeCheck filename = do
   let parsed = parseCql tokens
 
   state <- execStateT (mapM_ typecheck parsed) Map.empty
-  putStrLn $ "Type checking complete: " ++ show state
+  state `deepseq` return ()
+  
   _ <- execStateT (mapM_ eval parsed) Map.empty
   return ()
