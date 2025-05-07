@@ -91,8 +91,8 @@ stmt :: { Stmt }
     | "TRANSPOSE" var "AS" var ";" { Transpose $2 $4 }
 
 queries :: { [Query] }
-    : "(" query ")" "IN" queries { $2 : $5 }
-    | "(" query ")" { [$2] }
+    : query "IN" queries { $1 : $3 }
+    | query { [$1] }
 
 query :: { Query }
     : "GET" colrows { Get $2 }
