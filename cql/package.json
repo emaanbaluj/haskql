@@ -6,7 +6,7 @@
   "author": {
     "name": "CQL 22"
   },
-  "version": "0.0.5",
+  "version": "0.0.7",
   "engines": {
     "vscode": ">=1.50.0"
   },

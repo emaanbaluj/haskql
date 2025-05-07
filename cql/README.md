@@ -1,3 +1,7 @@
 # CQL SYNTAX HIGHLIGHTING - HOW TO ENABLE
 
-code --install-extension cql22-0.0.5.vsix
+code --install-extension cql22-0.0.7.vsix
+
+Alternatively, you could download the extension through the marketplace:
+
+https://marketplace.visualstudio.com/items?itemName=DanielCraciun.cql22
