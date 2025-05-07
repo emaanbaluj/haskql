@@ -16,6 +16,7 @@ import Debug.Trace (trace)
     "SORT"     { PT _ TokenSORT }
     "AS"     { PT _ TokenAS }
     "IMPORT" { PT _ TokenIMPORT }
+    "UPDATE" { PT _ TokenUPDATE }
     "SET" { PT _ TokenSET }
     "CROSS" { PT _ TokenCROSS }
     "NOTRIM" { PT _ TokenNOTRIM }
@@ -81,6 +82,7 @@ stmt :: { Stmt }
     : "IMPORT" csvfilepath "AS" var ";" { Import $2 $4 }
     | "SET" var "AS" "(" queries ")" ";" { Set $2 $5 }
     | "SET" var "AS" queries ";" { Set $2 $4 }
+    | "UPDATE" var "SET" "(" literals ")" "WHERE" filterquery ";" { Update $2 $5 $8 }
     | "WRITE" var "TO" csvfilepath ";" { Write $2 $4 }
     | "PRINT" colrow sort trim ";" { PrintColRow $2 $3 $4 }
     | "PRINT" var "." rowOrCol "(" num ")" "." rowOrCol "(" num ")" sort trim ";" { Access2D $2 $4 (read $6) $9 (read $11) }
@@ -187,6 +189,7 @@ parseError (tok:_) = error $ "Parse error at " ++ tokenPosn tok
 data Stmt = 
      Import FilePath VarName
     | Print VarName SortOrder Trim
+    | Update VarName [Literal] FilterQuery
     | PrintColRow ColRowData SortOrder Trim
     | Write VarName FilePath
     | Transpose VarName VarName

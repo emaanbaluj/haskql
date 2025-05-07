@@ -57,6 +57,7 @@ $digit = [0-9]
 @insert = [iI][nN][sS][eE][rR][tT]
 @reverse = [rR][eE][vV][eE][rR][sS][eE]
 @arity = [aA][rR][iI][tT][yY]
+@update = [uU][pP][dD][aA][tT][eE]
 
 tokens :-
     $white+                        ;
@@ -80,6 +81,7 @@ tokens :-
     "-"                            {\p _ -> PT p TokenMINUS }
     "*"                            {\p _ -> PT p TokenMULT }
     "/"                            {\p _ -> PT p TokenDIV }
+    @update                        {\p _ -> PT p TokenUPDATE }
     @insert                        {\p _ -> PT p TokenINSERT }
     @as                            {\p _ -> PT p TokenAS }
     @set                           {\p _ -> PT p TokenSET }
@@ -141,6 +143,7 @@ data Token =
   | TokenCROSS
   | TokenLPAREN
   | TokenRPAREN
+  | TokenUPDATE
   | TokenCOMMA
   | TokenSEMICOLON
   | TokenDOT
