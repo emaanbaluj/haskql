@@ -16,12 +16,12 @@ module Util
     warning,
     allSame,
     safeAccess,
+    updateRow,
   )
 where
 
-import CQLParser (Stmt (..))
+import CQLParser (Literal, Stmt (..))
 import Data.List (intercalate)
-import Debug.Trace (trace)
 import Types (CSVData, CSVRow)
 
 splitOn :: Char -> String -> [String]
@@ -102,3 +102,12 @@ safeAccess :: [a] -> Int -> a
 safeAccess xs n
   | n < 0 || n >= length xs = error $ "\nLikely Cause: Out of bounds error, Trying to access index " ++ show n ++ " in list of length " ++ show (length xs) ++ "\n" ++ "Other causes: Check for trailing \\n in the CSV file" ++ "\n"
   | otherwise = xs !! n
+
+updateRow :: [Literal] -> [Literal] -> [Literal]
+updateRow =
+  zipWith
+    ( \original replacement ->
+        if replacement == "$"
+          then original
+          else replacement
+    )

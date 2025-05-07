@@ -12,7 +12,7 @@ $digit = [0-9]
 @num = $digit+
 @float = $digit+\.$digit+
 @var = $alpha($alpha|$digit)*
-@literal = \"[^\,\$]+\"|@dollar
+@literal = \"[^\,\$\"]+\"|@dollar
 @csvfilepath = \"([a-zA-Z0-9_\-\.\/\\]+)\.csv\"
 
 -- Case insensitive keyword macros

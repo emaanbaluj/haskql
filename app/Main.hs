@@ -1,6 +1,6 @@
 import CQLParser (parseCql)
 import CQLexer (alexScanTokens)
-import Control.Monad.State (runStateT)
+import Control.Monad.State (execStateT)
 import qualified Data.Map as Map
 import Eval (eval)
 import System.Environment (getArgs)
@@ -16,7 +16,7 @@ main = do
     [filename, "--typecheck=true"] -> runCqlWithTypeCheck filename
     [filename, "-t"] -> runCqlWithTypeCheck filename
     _ -> putStrLn "Usage: stack run -- <filename> [--typecheck=true|false] | [-t]"
-  
+
   return ()
 
 runCql :: FilePath -> IO ()
@@ -25,7 +25,7 @@ runCql filename = do
   let tokens = alexScanTokens contents
   let parsed = parseCql tokens
 
-  (_, _) <- runStateT (mapM_ eval parsed) Map.empty
+  _ <- execStateT (mapM_ eval parsed) Map.empty
   return ()
 
 runCqlWithTypeCheck :: FilePath -> IO ()
@@ -34,6 +34,7 @@ runCqlWithTypeCheck filename = do
   let tokens = alexScanTokens contents
   let parsed = parseCql tokens
 
-  (_, _) <- runStateT (mapM_ typecheck parsed) Map.empty
-  (_, _) <- runStateT (mapM_ eval parsed) Map.empty
+  state <- execStateT (mapM_ typecheck parsed) Map.empty
+  putStrLn $ "Type checking complete: " ++ show state
+  _ <- execStateT (mapM_ eval parsed) Map.empty
   return ()

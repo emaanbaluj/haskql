@@ -15,15 +15,18 @@ import Data.Maybe (fromJust)
 import Data.Ord (Down (Down), comparing)
 import State (addToContext)
 import Types (CSVData, CSVRow, CSVState)
-import Util (combineRows, convertToCSV, getColFromTable, getRowFromTable, insertAfter, readCSV, replaceWith, safeAccess, setColInTable, setRowInTable, trimString, writeToCSV)
+import Util (combineRows, convertToCSV, getColFromTable, getRowFromTable, insertAfter, readCSV, replaceWith, safeAccess, setColInTable, setRowInTable, trimString, updateRow, writeToCSV)
 
 eval :: Stmt -> CSVState ()
-eval (Update var _ _) = do
+eval (Update var literals filterQuery) = do
   ctx <- get
   case Map.lookup var ctx of
     Nothing -> liftIO $ putStrLn ("<error> no such table: " ++ var)
-    Just _ -> do
-      return ()
+    Just table -> do
+      filteredTable <- filterResult filterQuery var
+      let updatedTable = map (\row -> if row `elem` filteredTable then updateRow row literals else row) table
+
+      addToContext var updatedTable
 eval (Access2D var firstAxis firstIdx secondAxis secondIdx) = do
   ctx <- get
   case Map.lookup var ctx of
