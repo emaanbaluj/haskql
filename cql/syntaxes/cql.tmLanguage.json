@@ -5,11 +5,28 @@
 	"patterns": [
 	  {
 		"name": "keyword.control.cql",
-		"match": "\\b(?:IMPORT|SET|WRITE|PRINT|WHERE|MAP|INSERT|COL|ROW|TRANSPOSE|GET|CROSS|ZIP|STACK|FILTER|DISTINCT|UNION|LIMIT|CONCAT|REPLACE|REVERSE|LEFT_MERGE|RIGHT_MERGE)\\b"
+		"match": "\\b(?:IMPORT|SET|WITH|WRITE|PRINT|WHERE|MAP|INSERT|COL|ROW|TRANSPOSE|GET|CROSS|ZIP|STACK|FILTER|DISTINCT|UNION|LIMIT|CONCAT|REPLACE|REVERSE|LEFT_MERGE|RIGHT_MERGE)\\b"
 	  },
 	  {
+		"name": "comment.line.double-dash",
+		"match": "--.*$",
+		"captures": {
+		  "0": {
+			"name": "comment.line.double-dash"
+		  }
+		}
+	  },	  
+	  {
 		"name": "keyword.operator.cql",
-		"match": "\\b(?:SORT|AS|TO|IN|WITH|ON|IS|NULL)\\b"
+		"match": "\\b(?:SORT|TO|ON)\\b"
+	  },
+	  {
+		"name": "storage.modifier.cql",
+		"match": "\\b(?:AS|IN)\\b"
+	  },
+	  {
+		"name": "invalid.illegal.cql",
+		"match": "\\b(?:NULL)\\b"
 	  },
 	  {
 		"name": "support.function.cql",
@@ -17,7 +34,7 @@
 	  },
 	  {
 		"name": "constant.language.boolean.cql",
-		"match": "\\b(?:NOSORT|NOTRIM|NOT)\\b"
+		"match": "\\b(?:NOSORT|NOTRIM|NOT|IS)\\b"
 	  },
 	  {
 		"name": "constant.numeric.float.cql",
@@ -47,6 +64,10 @@
 	  {
 		"name": "variable.other.cql",
 		"match": "\\b[a-zA-Z_][a-zA-Z0-9_]*\\b"
+	  },
+	  {
+		"name": "comment.line.cql",
+		"match": "\\$"
 	  },
 	  {
 		"name": "punctuation.separator.comma.cql",
