@@ -45,8 +45,8 @@ statementPrinter stmt = case stmt of
     putStrLn $ "Set " ++ var ++ " as " ++ show query
   Map var1 var2 var3 -> do
     putStrLn $ "Map " ++ show var1 ++ " " ++ var2 ++ " " ++ var3
-  Access2D var1 colrow1 idx1 colrow2 idx2 -> do
-    putStrLn $ "Access2D " ++ var1 ++ " " ++ show colrow1 ++ " " ++ show idx1 ++ " " ++ show colrow2 ++ " " ++ show idx2
+  Access2D var1 colrow1 idx1 colrow2 idx2 output -> do
+    putStrLn $ "Access2D " ++ var1 ++ " " ++ show colrow1 ++ " " ++ show idx1 ++ " " ++ show colrow2 ++ " " ++ show idx2 ++ " " ++ output
   Transpose var1 var2 -> do
     putStrLn $ "Transpose " ++ var1 ++ " " ++ var2
   PrintColRow colrow1 sort trim -> do

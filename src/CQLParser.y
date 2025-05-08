@@ -81,7 +81,7 @@ stmt :: { Stmt }
     | "UPDATE" var "SET" "(" literals ")" "WHERE" filterquery ";" { Update $2 $5 $8 }
     | "WRITE" var "TO" csvfilepath ";" { Write $2 $4 }
     | "PRINT" colrow sort trim ";" { PrintColRow $2 $3 $4 }
-    | "PRINT" var "." rowOrCol "(" num ")" "." rowOrCol "(" num ")" sort trim ";" { Access2D $2 $4 (read $6) $9 (read $11) }
+    | "PRINT" var "." rowOrCol "(" num ")" "." rowOrCol "(" num ")" "TO" var ";" { Access2D $2 $4 (read $6) $9 (read $11) $14 }
     | "PRINT" var sort trim ";" { Print $2 $3 $4 }
     | "MAP" "(" expr ")" "IN" var "AS" var ";" { Map $3 $6 $8 }
     | "INSERT" "ROW" "(" literals ")" "IN" var "AS" var ";" { Insert ROW $4 $7 $9 }
@@ -195,7 +195,7 @@ data Stmt =
     | Set VarName [Query]
     | Map Expr VarName VarName 
     | Insert ColRow [Literal] VarName VarName
-    | Access2D VarName ColRow Int ColRow Int
+    | Access2D VarName ColRow Int ColRow Int VarName
     deriving (Show, Eq)
 
 data Query = 

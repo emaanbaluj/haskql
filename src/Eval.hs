@@ -27,7 +27,7 @@ eval (Update var literals filterQuery) = do
       let updatedTable = map (\row -> if row `elem` filteredTable then updateRow row literals else row) table
 
       addToContext var updatedTable
-eval (Access2D var firstAxis firstIdx secondAxis secondIdx) = do
+eval (Access2D var firstAxis firstIdx secondAxis secondIdx output) = do
   ctx <- get
   case Map.lookup var ctx of
     Nothing -> liftIO $ putStrLn ("<error> no such table: " ++ var)
@@ -35,7 +35,7 @@ eval (Access2D var firstAxis firstIdx secondAxis secondIdx) = do
       value <- liftIO $ try (evaluate (access2D table firstAxis firstIdx secondAxis secondIdx)) :: CSVState (Either SomeException String)
       case value of
         Left _ -> liftIO $ error (var ++ ".COL(" ++ show firstIdx ++ ").ROW(" ++ show secondIdx ++ ") is out of bounds for table " ++ var)
-        Right v -> liftIO $ putStrLn v
+        Right v -> addToContext output [[v]]
 eval (PrintColRow (ColRowData var COL colNum) _ trim) = do
   ctx <- get
   case Map.lookup var ctx of
