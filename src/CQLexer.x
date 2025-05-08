@@ -12,7 +12,7 @@ $digit = [0-9]
 @num = $digit+
 @float = $digit+\.$digit+
 @var = $alpha($alpha|$digit)*
-@literal = \"[^\,\$\"]+\"|@dollar
+@literal = \"[^\,\$\"]*\"|@dollar
 @csvfilepath = \"([a-zA-Z0-9_\-\.\/\\]+)\.csv\"
 
 -- Case insensitive keyword macros
@@ -66,9 +66,6 @@ tokens :-
     ")"                            {\p _ -> PT p TokenRPAREN }
     ","                            {\p _ -> PT p TokenCOMMA }
     ";"                            {\p _ -> PT p TokenSEMICOLON }
-    "="                            {\p _ -> PT p TokenEQUAL }
-    "||"                           {\p _ -> PT p TokenOR }
-    "&&"                           {\p _ -> PT p TokenAND }
     "=="                           {\p _ -> PT p TokenEQ }
     "!="                           {\p _ -> PT p TokenNEQ }
     "<="                           {\p _ -> PT p TokenLE }
@@ -79,8 +76,6 @@ tokens :-
     ">"                            {\p _ -> PT p TokenGT }
     "+"                            {\p _ -> PT p TokenPLUS }
     "-"                            {\p _ -> PT p TokenMINUS }
-    "*"                            {\p _ -> PT p TokenMULT }
-    "/"                            {\p _ -> PT p TokenDIV }
     @update                        {\p _ -> PT p TokenUPDATE }
     @insert                        {\p _ -> PT p TokenINSERT }
     @as                            {\p _ -> PT p TokenAS }
@@ -102,7 +97,6 @@ tokens :-
     @replace                       {\p _ -> PT p TokenREPLACE }
     @with                          {\p _ -> PT p TokenWITH }
     @concat                        {\p _ -> PT p TokenCONCAT }
-    @count                         {\p _ -> PT p TokenCOUNT }
     @write                         {\p _ -> PT p TokenWRITE } 
     @to                            {\p _ -> PT p TokenTO } 
     @import                        {\p _ -> PT p TokenIMPORT }
@@ -147,11 +141,8 @@ data Token =
   | TokenCOMMA
   | TokenSEMICOLON
   | TokenDOT
-  | TokenEQUAL
-  | TokenOR
-  | TokenAND
-  | TokenNULL
   | TokenEQ
+  | TokenNULL
   | TokenNEQ
   | TokenLE
   | TokenSPEECH
@@ -161,8 +152,6 @@ data Token =
   | TokenGT
   | TokenPLUS
   | TokenMINUS
-  | TokenMULT
-  | TokenDIV
   | TokenPRINT
   | TokenFILTER
   | TokenDISTINCT
@@ -182,7 +171,6 @@ data Token =
   | TokenREPLACE
   | TokenWITH
   | TokenCONCAT
-  | TokenCOUNT
   | TokenWRITE
   | TokenTO
   | TokenIMPORT

@@ -1,6 +1,6 @@
 ## Useful commands
 
-zip stack_project.zip -r cql/cql22-0.0.5.vsix app/ src/ test/ package.yaml plc.cabal Setup.hs stack.yaml stack.yaml.lock A.csv B.csv P.csv Q.csv CHANGELOG.md README.md -x src/*.cql
+zip stack_project.zip -r cql/cql22-0.0.5.vsix app/ src/ test/ package.yaml plc.cabal Setup.hs stack.yaml stack.yaml.lock CHANGELOG.md README.md -x src/*.cql
 mkdir ~/haskql
 mv stack_project.zip ~/haskql
 unzip ~/haskql/stack_project.zip

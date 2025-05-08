@@ -24,9 +24,6 @@ import Debug.Trace (trace)
     ")" { PT _ TokenRPAREN }
     "," { PT _ TokenCOMMA }
     ";" { PT _ TokenSEMICOLON }
-    "=" { PT _ TokenEQUAL }
-    "||" { PT _ TokenOR }
-    "&&" { PT _ TokenAND }
     "==" { PT _ TokenEQ }
     "!=" { PT _ TokenNEQ }
     "<=" { PT _ TokenLE }
@@ -35,9 +32,7 @@ import Debug.Trace (trace)
     ">" { PT _ TokenGT }
     "+" { PT _ TokenPLUS }
     "-" { PT _ TokenMINUS }
-    "*" { PT _ TokenMULT }
     "FROM" { PT _ TokenFROM }
-    "/" { PT _ TokenDIV }
     "." { PT _ TokenDOT }
     "FILTER" { PT _ TokenFILTER }
     "DISTINCT" { PT _ TokenDISTINCT }
@@ -47,7 +42,6 @@ import Debug.Trace (trace)
     "WITH" { PT _ TokenWITH }
     "UNION" { PT _ TokenUNION }
     "CONCAT" { PT _ TokenCONCAT }
-    "COUNT" { PT _ TokenCOUNT }
     "ZIP" { PT _ TokenZIP }
     "STACK" { PT _ TokenSTACK }
     "WRITE" { PT _ TokenWRITE }
