@@ -5,7 +5,7 @@
 	"patterns": [
 	  {
 		"name": "keyword.control.cql",
-		"match": "\\b(?:IMPORT|SET|WITH|WRITE|PRINT|WHERE|MAP|INSERT|COL|ROW|TRANSPOSE|GET|CROSS|ZIP|STACK|FILTER|DISTINCT|UNION|LIMIT|CONCAT|REPLACE|REVERSE|LEFT_MERGE|RIGHT_MERGE)\\b"
+		"match": "\\b(?:IMPORT|SET|UPDATE|WITH|WRITE|PRINT|WHERE|MAP|INSERT|COL|ROW|TRANSPOSE|GET|CROSS|ZIP|STACK|FILTER|DISTINCT|UNION|LIMIT|CONCAT|REPLACE|REVERSE|LEFT_MERGE|RIGHT_MERGE)\\b"
 	  },
 	  {
 		"name": "comment.line.double-dash",
@@ -62,11 +62,11 @@
 		]
 	  },
 	  {
-		"name": "variable.other.cql",
+		"name": "variable.parameter.cql",
 		"match": "\\b[a-zA-Z_][a-zA-Z0-9_]*\\b"
 	  },
 	  {
-		"name": "comment.line.cql",
+		"name": "variable.language.cql",
 		"match": "\\$"
 	  },
 	  {
