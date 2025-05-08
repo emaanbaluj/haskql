@@ -5,6 +5,8 @@ module Types
     CSVData,
     BaseType (..),
     ColumnType (..),
+    CSVRowIndexed,
+    CSVDataIndexed,
   )
 where
 
@@ -14,6 +16,10 @@ import Data.Map (Map)
 
 data BaseType = TString | TInt | TBool
   deriving (Eq, Show)
+
+type CSVRowIndexed = [(String, (Int, Int))]
+
+type CSVDataIndexed = [CSVRowIndexed]
 
 data ColumnType = ColumnType String BaseType
   deriving (Eq, Show)

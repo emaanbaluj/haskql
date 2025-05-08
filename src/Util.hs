@@ -17,12 +17,14 @@ module Util
     allSame,
     safeAccess,
     updateRow,
+    toCSVIndexedData,
+    toCSVData,
   )
 where
 
 import CQLParser (Literal, Stmt (..))
 import Data.List (intercalate)
-import Types (CSVData, CSVRow)
+import Types (CSVData, CSVDataIndexed, CSVRow, CSVRowIndexed)
 
 splitOn :: Char -> String -> [String]
 splitOn delimiter input =
@@ -111,3 +113,17 @@ updateRow =
           then original
           else replacement
     )
+
+toIndexedRow :: Int -> CSVRow -> CSVRowIndexed
+toIndexedRow rowIndex row =
+  [(val, (rowIndex, colIndex)) | (colIndex, val) <- zip [1 ..] row]
+
+toCSVIndexedData :: CSVData -> CSVDataIndexed
+toCSVIndexedData rows =
+  [toIndexedRow rowIndex row | (rowIndex, row) <- zip [1 ..] rows]
+
+toCSVIndexedRow :: CSVRowIndexed -> CSVRow
+toCSVIndexedRow = map (\(val, (_, _)) -> val)
+
+toCSVData :: CSVDataIndexed -> CSVData
+toCSVData = map toCSVIndexedRow

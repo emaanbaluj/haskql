@@ -8,3 +8,9 @@ rm ~/haskql/stack_project.zip
 zip ~/stack_project.zip -r ~/haskql
 
 zip tasks.zip -r t1.cql t2.cql t3.cql t4.cql t5.cql
+
+run:
+
+```
+stack clean
+```
