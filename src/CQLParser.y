@@ -175,6 +175,7 @@ expr :: { Expr }
     | "-" num { SubN (read $2) }
     | "/" num { DivideN (read $2) }
     | "*" num { MultiplyN (read $2) }
+    | "REPLACE" literal literal { ReplaceWith $2 $3 }
     | "UPPER" { ToUpper }
     | "LOWER" { ToLower }
     | "NOT"   { Not }
@@ -217,6 +218,7 @@ data Expr
   = AddN Int      
   | SubN Int      
   | ToUpper
+  | ReplaceWith Literal Literal
   | ToLower
   | Not
   | DivideN Double

@@ -133,6 +133,7 @@ apply (DivideN n) s = case reads s of
 apply (MultiplyN n) s = case reads s of
   [(x, "")] -> show (x * n :: Double)
   _ -> s
+apply (ReplaceWith literal1 literal2) s = if s == literal1 then literal2 else s
 apply ToUpper s = map toUpper s
 apply ToLower s = map toLower s
 apply Not "True" = "False"
