@@ -32,6 +32,8 @@ import Debug.Trace (trace)
     ">" { PT _ TokenGT }
     "+" { PT _ TokenPLUS }
     "-" { PT _ TokenMINUS }
+    "/" { PT _ TokenDIVIDE }
+    "*" { PT _ TokenMULTIPLY }
     "FROM" { PT _ TokenFROM }
     "." { PT _ TokenDOT }
     "FILTER" { PT _ TokenFILTER }
@@ -171,6 +173,8 @@ literals :: { [Literal] }
 expr :: { Expr }
     : "+" num { AddN (read $2) }
     | "-" num { SubN (read $2) }
+    | "/" num { DivideN (read $2) }
+    | "*" num { MultiplyN (read $2) }
     | "UPPER" { ToUpper }
     | "LOWER" { ToLower }
     | "NOT"   { Not }
@@ -215,6 +219,8 @@ data Expr
   | ToUpper
   | ToLower
   | Not
+  | DivideN Double
+  | MultiplyN Double
   deriving (Eq, Show)
 
 data MergeType = LeftMerge | RightMerge deriving (Show, Eq)

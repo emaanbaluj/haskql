@@ -76,6 +76,8 @@ tokens :-
     ">"                            {\p _ -> PT p TokenGT }
     "+"                            {\p _ -> PT p TokenPLUS }
     "-"                            {\p _ -> PT p TokenMINUS }
+    "/"                            {\p _ -> PT p TokenDIVIDE }
+    "*"                            {\p _ -> PT p TokenMULTIPLY }
     @update                        {\p _ -> PT p TokenUPDATE }
     @insert                        {\p _ -> PT p TokenINSERT }
     @as                            {\p _ -> PT p TokenAS }
@@ -168,6 +170,8 @@ data Token =
   | TokenRIGHTMERGE
   | TokenON
   | TokenUNION
+  | TokenDIVIDE
+  | TokenMULTIPLY
   | TokenREPLACE
   | TokenWITH
   | TokenCONCAT

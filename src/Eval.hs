@@ -127,6 +127,12 @@ apply (AddN n) s = case reads s of
 apply (SubN n) s = case reads s of
   [(x, "")] -> show (x - n :: Int)
   _ -> s
+apply (DivideN n) s = case reads s of
+  [(x, "")] -> show (x / n :: Double)
+  _ -> s
+apply (MultiplyN n) s = case reads s of
+  [(x, "")] -> show (x * n :: Double)
+  _ -> s
 apply ToUpper s = map toUpper s
 apply ToLower s = map toLower s
 apply Not "True" = "False"
