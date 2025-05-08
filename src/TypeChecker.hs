@@ -108,7 +108,6 @@ queryHandler _ query = do
     Cross vars -> do
       ts <- mapM lookupType vars
       let columns = map getColumnCounts ts
-      if allSame columns then return () else warning ("Type mismatch - Cross operation requires all variables " ++ show vars ++ " to have the same number of columns") return ()
       if allSameDataType ts then return () else warning ("Type mismatch - Cross operation requires all variables " ++ show vars ++ " to have the same type for type safety") return ()
       return ()
     Merge _ var1 var2 _ -> do
