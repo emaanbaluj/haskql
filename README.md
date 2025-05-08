@@ -1,16 +1,25 @@
-## Useful commands
+# DO NOT RUN OUTSIDE OF THE MAIN HASKQL DIRECTORY
 
-zip stack_project.zip -r cql/cql22-0.0.5.vsix app/ src/ test/ package.yaml plc.cabal Setup.hs stack.yaml stack.yaml.lock CHANGELOG.md README.md -x src/*.cql
-mkdir ~/haskql
-mv stack_project.zip ~/haskql
-unzip ~/haskql/stack_project.zip
-rm ~/haskql/stack_project.zip
-zip ~/stack_project.zip -r ~/haskql
+# Prepare project zip
 
-zip tasks.zip -r t1.cql t2.cql t3.cql t4.cql t5.cql
+find haskql -mindepth 1 -delete
+stack clean && rsync -av --exclude='*.cql' --exclude='*.csv' --exclude='haskql/' --exclude='.*' --exclude='tasks' --exclude='*.zip' ./ haskql/
+rm project.zip
+zip -r project.zip haskql
+find haskql -mindepth 1 -delete
 
-run:
+# Prepare tasks zip
 
-```
-stack clean
-```
+find tasks -mindepth 1 -delete
+rsync -av --include='*.cql' --exclude='*' --exclude='*.zip' ./src/ tasks/
+rm tasks.zip
+zip -r tasks.zip tasks
+find tasks -mindepth 1 -delete
+
+# Quick testing
+unzip project.zip
+unzip tasks.zip
+cd haskql
+cp ../*.csv .
+mv ../tasks/*.cql .
+stack build
