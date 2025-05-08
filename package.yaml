@@ -23,6 +23,7 @@ dependencies:
   - mtl
   - matrix
   - deepseq
+  - text
 ghc-options:
   - -Wall
   - -Wcompat

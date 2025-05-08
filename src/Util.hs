@@ -24,6 +24,7 @@ where
 
 import CQLParser (Literal, Stmt (..))
 import Data.List (intercalate)
+import Data.Text (pack, strip, unpack)
 import Types (CSVData, CSVDataIndexed, CSVRow, CSVRowIndexed)
 
 splitOn :: Char -> String -> [String]
@@ -66,7 +67,7 @@ writeToCSV :: CSVData -> FilePath -> IO ()
 writeToCSV csv filepath = writeFile filepath (convertToCSV csv)
 
 trimString :: String -> String
-trimString = foldr (\c acc -> if c == ' ' then acc else c : acc) ""
+trimString = unpack . strip . pack
 
 modifyAt :: Int -> (String -> String) -> [String] -> [String]
 modifyAt i f xs = [if idx == i then f x else x | (idx, x) <- zip [0 ..] xs]
