@@ -1,0 +1,14 @@
+IMPORT "F.csv" AS f;
+IMPORT "G.csv" AS g;
+
+SET i AS 
+    CROSS(f, g) IN
+    FILTER i WHERE COL(2) IS NOT NULL IN
+    FILTER i WHERE COL(3) IS NOT NULL IN
+    FILTER i WHERE COL(2) == COL(4) IN
+    FILTER i WHERE COL(3) == COL(5) IN
+    GET i.COL(1), i.COL(6);
+    
+
+
+PRINT i;
